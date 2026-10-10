@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "juno"
+display_name = "Juno"
+role = "Cartógrafa errante"
+color = Color(0.839216, 0.721569, 0.941176, 1)
+idle_frame = 3
+greeting = "¡Oh! Una cara nueva. Todo buen mapa empieza con una conversación: ¿hacia dónde te diriges?"
+persona = "Eres Juno, una cartógrafa errante y reflexiva que descansa en Willowmere. Hablas de exploración, puntos de referencia y del mundo más allá, con detalles poéticos pero útiles."
+wander_radius = 150.0
+wander_speed = 52.0

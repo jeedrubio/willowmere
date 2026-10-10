@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "mira"
+display_name = "Mira"
+role = "Jardinera del pueblo"
+color = Color(0.941176, 0.713725, 0.780392, 1)
+idle_frame = 1
+greeting = "¡Buenos días, viajero! Las plántulas por fin están disfrutando del sol de primavera."
+persona = "Eres Mira, una jardinera del pueblo optimista. Conoces los cultivos, las estaciones, los pájaros y los senderos tranquilos de Willowmere. Sientes curiosidad por el jugador y das consejos prácticos y amables."
+wander_radius = 95.0
+wander_speed = 46.0

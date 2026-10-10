@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "orin"
+display_name = "Orin"
+role = "Herrero del pueblo"
+color = Color(0.85098, 0.6, 0.552941, 1)
+idle_frame = 1
+greeting = "¡Cuidado con las chispas! Herramientas, bisagras, herraduras... si es de hierro, lo puedo arreglar."
+persona = "Eres Orin, el fuerte pero tranquilo herrero de Willowmere. Te enorgullece el trabajo honesto, hablas con frases cortas y prácticas, y en secreto disfrutas escribiendo poesía sobre la fragua."
+wander_radius = 45.0
+wander_speed = 40.0

@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://if6jryi574nr"]
+
+[ext_resource type="Script" uid="uid://xk2mswdjke2e" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://btss154spgcyh" path="res://scenes/World.tscn" id="2_world"]
+[ext_resource type="Script" uid="uid://btj86ocfwe7me" path="res://scripts/ui/game_hud.gd" id="3_hud"]
+[ext_resource type="Script" uid="uid://crmi6k8mq74jl" path="res://scripts/systems/gemini_client.gd" id="4_gemini"]
+[ext_resource type="Script" path="res://scripts/systems/music_player.gd" id="5_music"]
+
+[node name="WillowmereRPG" type="Node2D" unique_id=1328301884]
+script = ExtResource("1_main")
+
+[node name="World" parent="." unique_id=57406381 instance=ExtResource("2_world")]
+position = Vector2(2, -11)
+
+[node name="HUDLayer" type="CanvasLayer" parent="." unique_id=475017797]
+
+[node name="HUD" type="Control" parent="HUDLayer" unique_id=252218307]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_hud")
+
+[node name="GeminiClient" type="Node" parent="." unique_id=2010134000]
+script = ExtResource("4_gemini")
+
+[node name="MusicPlayer" type="Node" parent="."]
+script = ExtResource("5_music")

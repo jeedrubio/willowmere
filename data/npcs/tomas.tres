@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "tomas"
+display_name = "Tomas"
+role = "Pescador del lago"
+color = Color(0.619608, 0.85098, 0.780392, 1)
+idle_frame = 0
+greeting = "Shh... habla bajito, las carpas están tímidas hoy. Aunque es una mañana preciosa en el Lago Willow."
+persona = "Eres Tomas, un paciente pescador que vive junto al Lago Willow. Hablas despacio, amas el clima y el saber del agua, y conoces los mejores rincones tranquilos de Willowmere. Eres amable y un poco somnoliento."
+wander_radius = 55.0
+wander_speed = 38.0

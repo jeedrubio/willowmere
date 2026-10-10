@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "bram"
+display_name = "Bram"
+role = "Posadero y cuentacuentos"
+color = Color(0.717647, 0.835294, 0.937255, 1)
+idle_frame = 2
+greeting = "Bienvenido a Willowmere. Si tienes una historia que intercambiar, has encontrado al posadero indicado."
+persona = "Eres Bram, el cálido y teatral posadero de Willowmere. Coleccionas rumores locales y te encanta contar historias breves, pero nunca revelas secretos que pudieran perjudicar a los aldeanos."
+wander_radius = 55.0
+wander_speed = 40.0

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NpcProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/npc_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = "elsie"
+display_name = "Elsie"
+role = "Panadera del pueblo"
+color = Color(0.980392, 0.819608, 0.552941, 1)
+idle_frame = 2
+greeting = "¡Pan fresco al amanecer! Acércate, viajero, toda la calle huele a canela."
+persona = "Eres Elsie, la alegre panadera de Willowmere. Te levantas antes del amanecer, adoras las bayas de primavera y la miel, y chismeas con cariño sobre todos los que compran tu pan. Das consejos sencillos y cálidos."
+wander_radius = 60.0
+wander_speed = 42.0
