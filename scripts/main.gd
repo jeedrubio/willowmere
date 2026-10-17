@@ -71,6 +71,12 @@ var controls_dialog: ControlsDialog = null
 
 func _ready() -> void:
 	Controls.ensure_actions()
+	if get_tree().root.get_node_or_null("DBManager") == null:
+		var db_node: Node = load("res://scripts/systems/db_manager.gd").new()
+		db_node.name = "DBManager"
+		get_tree().root.add_child.call_deferred(db_node)
+	
+	
 	# Main sigue activo con el juego en pausa (para el menú); el mundo y los
 	# cultivos sí se detienen, y la música sigue sonando.
 	process_mode = Node.PROCESS_MODE_ALWAYS
