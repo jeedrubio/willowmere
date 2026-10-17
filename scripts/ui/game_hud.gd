@@ -13,6 +13,7 @@ var _api_status: Label
 var _prompt_panel: PanelContainer
 var _prompt_label: Label
 var _location_label: Label
+var _clock_label: Label
 var _fade: ColorRect
 
 
@@ -94,6 +95,17 @@ func set_location(place: String) -> void:
 	_location_label.text = "SPRINGFALL  /  %s" % place.to_upper()
 
 
+func set_clock(day: int, minutes: int) -> void:
+	var time_of_day := posmod(minutes, 24 * 60)
+	var hour_24 := int(time_of_day / 60)
+	var minute := time_of_day % 60
+	var suffix := "AM" if hour_24 < 12 else "PM"
+	var hour_12 := hour_24 % 12
+	if hour_12 == 0:
+		hour_12 = 12
+	_clock_label.text = "DÍA %d   ·   %d:%02d %s" % [day, hour_12, minute, suffix]
+
+
 ## Funde la pantalla a negro (alpha 1) o la devuelve (alpha 0). Usar con await.
 func fade_to(alpha: float, duration: float) -> void:
 	var tween := create_tween()
@@ -104,7 +116,7 @@ func fade_to(alpha: float, duration: float) -> void:
 func _build_location_card() -> void:
 	var card := PanelContainer.new()
 	card.position = Vector2(20, 18)
-	card.size = Vector2(390, 80)
+	card.size = Vector2(390, 96)
 	card.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.COLOR_CARD, 13, UiKit.COLOR_BORDER, 1))
 	add_child(card)
 	var margin := UiKit.margin(16, 16, 11, 11)
@@ -115,6 +127,8 @@ func _build_location_card() -> void:
 	copy.add_child(UiKit.label("WILLOWMERE", 20, UiKit.COLOR_TEXT))
 	_location_label = UiKit.label("SPRINGFALL  /  PLAZA CENTRAL", 10, UiKit.COLOR_ACCENT)
 	copy.add_child(_location_label)
+	_clock_label = UiKit.label("DÍA 1   ·   6:00 AM", 10, UiKit.COLOR_MINT)
+	copy.add_child(_clock_label)
 	copy.add_child(UiKit.label(Controls.hud_hint(), 9, UiKit.COLOR_FAINT))
 
 
@@ -127,7 +141,7 @@ func _wrapped_label(text: String, font_size: int, color: Color) -> Label:
 
 func _build_quest_card() -> void:
 	_quest_card = PanelContainer.new()
-	_quest_card.position = Vector2(20, 112)
+	_quest_card.position = Vector2(20, 122)
 	_quest_card.custom_minimum_size = Vector2(310, 0)
 	_quest_card.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.COLOR_CARD, 13, UiKit.COLOR_BORDER, 1))
 	add_child(_quest_card)
@@ -207,9 +221,9 @@ func _build_prompt() -> void:
 	_prompt_panel.anchor_top = 1.0
 	_prompt_panel.anchor_bottom = 1.0
 	_prompt_panel.offset_left = -174
-	_prompt_panel.offset_top = -92
+	_prompt_panel.offset_top = -166
 	_prompt_panel.offset_right = 174
-	_prompt_panel.offset_bottom = -48
+	_prompt_panel.offset_bottom = -122
 	_prompt_panel.add_theme_stylebox_override("panel", UiKit.panel_style(Color("#172A38"), 12, Color("#5B9A87"), 1))
 	_prompt_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_prompt_panel)

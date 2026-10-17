@@ -6,6 +6,7 @@ extends PanelContainer
 
 signal message_submitted(text: String)
 signal close_requested
+signal shop_requested
 
 var _name_label: Label
 var _role_label: Label
@@ -199,6 +200,11 @@ func _build_header() -> HBoxContainer:
 	_status_label = UiKit.label("ENLACE GEMINI", 10, UiKit.COLOR_MINT)
 	_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_status_label)
+
+	var market_button := UiKit.ghost_button("Mercado")
+	market_button.custom_minimum_size = Vector2(76, 31)
+	market_button.pressed.connect(shop_requested.emit)
+	header.add_child(market_button)
 
 	var close_button := UiKit.ghost_button("Esc  ×")
 	close_button.custom_minimum_size = Vector2(67, 31)

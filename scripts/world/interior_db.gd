@@ -109,6 +109,14 @@ const LAYOUTS := {
 		["rug", 230, 158], ["table", 230, 142], ["chair_front", 230, 128],
 		["chair_right", 208, 144], ["chair_left", 252, 144],
 	]},
+	"farmhome": {"theme": "farmhouse", "items": [
+		["window", 58, 40], ["window", 258, 40], ["clock", 198, 36], ["frame_flowers", 112, 38],
+		["fireplace", 160, 76],
+		["bed_v", 36, 112], ["cabinet_a", 86, 102], ["tulips", 86, 88, 102],
+		["rug", 208, 158], ["table", 208, 144], ["chair_front", 208, 130],
+		["chair_right", 186, 146], ["chair_left", 230, 146],
+		["cabinet_c", 270, 92], ["plant", 292, 146],
+	]},
 	"carpenter": {"theme": "carpenter", "items": [
 		["window", 60, 40], ["window", 260, 40], ["clock", 110, 36], ["frame_flowers", 160, 38],
 		["fireplace", 200, 76],

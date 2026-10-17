@@ -26,6 +26,9 @@ size = Vector2(20, 1256)
 [sub_resource type="RectangleShape2D" id="BoundaryVertical"]
 size = Vector2(2312, 20)
 
+[sub_resource type="RectangleShape2D" id="NpcCollision"]
+size = Vector2(17, 13)
+
 [sub_resource type="RectangleShape2D" id="HouseCollision"]
 size = Vector2(77, 64)
 
@@ -38,12 +41,12 @@ size = Vector2(55, 24)
 [sub_resource type="RectangleShape2D" id="VFenceCollision"]
 size = Vector2(10, 66)
 
-[sub_resource type="RectangleShape2D" id="NpcCollision"]
-size = Vector2(17, 13)
-
 [sub_resource type="CapsuleShape2D" id="PlayerCollision"]
 radius = 8.0
 height = 18.0
+
+[sub_resource type="RectangleShape2D" id="TownFarmGateShape"]
+size = Vector2(56, 78)
 
 [node name="World" type="Node2D" unique_id=496068385]
 texture_filter = 1
@@ -83,47 +86,7 @@ texture_filter = 1
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAAAAAABAAAAAAADAAAAAAACAAAAAAADAAAAAAADAAAAAAADAAAAAAAEAAAAAAADAAAAAAAFAAAAAAADAAAAAAAGAAAAAAADAAAAAAAHAAAAAAADAAAAAAAIAAAAAAADAAAAAAAJAAAAAAADAAAAAAAKAAAAAAADAAAAAAALAAAAAAADAAAAAAAMAAAAAAADAAAAAAANAAAAAAADAAAAAAAOAAAAAAADAAAAAAAPAAAAAAADAAAAAAAQAAAAAAADAAAAAAARAAAAAAADAAAAAAASAAAAAAADAAAAAAATAAAAAAADAAAAAAAUAAAAAAADAAAAAAAVAAAAAAADAAAAAAAWAAAAAAADAAAAAAAXAAAAAAADAAAAAAAYAAAAAAADAAAAAAAZAAAAAAADAAAAAAAaAAAAAAADAAAAAAAbAAAAAAADAAAAAAAcAAAAAAADAAAAAAAdAAAAAAADAAAAAAAeAAAAAAADAAAAAAAfAAAAAAADAAAAAAAgAAAAAAADAAAAAAAhAAAAAAADAAAAAAAiAAAAAAADAAAAAAAjAAAAAAADAAAAAAAkAAAAAAADAAAAAAAlAAAAAAADAAAAAAAmAAAAAAADAAAAAAAnAAAAAAADAAAAAAAoAAAAAAADAAAAAAApAAAAAAADAAAAAAAqAAAAAAADAAAAAAArAAAAAAADAAAAAAAsAAAAAAADAAAAAAAtAAAAAAADAAAAAAAuAAAAAAADAAAAAAAvAAAAAAADAAAAAAAwAAAAAAADAAAAAAAxAAAAAAADAAAAAAAyAAAAAAADAAAAAAAzAAAAAAADAAAAAAA0AAAAAAADAAAAAAA1AAAAAAADAAAAAAA2AAAAAAADAAAAAAA3AAAAAAADAAAAAAA4AAAAAAADAAAAAAA5AAAAAAADAAAAAAA6AAAAAAADAAAAAAA7AAAAAAADAAAAAAA8AAAAAAADAAAAAAA9AAAAAAADAAAAAAA+AAAAAAADAAAAAAA/AAAAAAADAAAAAABAAAAAAAADAAAAAABBAAAAAAADAAAAAABCAAAAAAADAAAAAABDAAAAAAADAAAAAABEAAAAAAADAAAAAABFAAAAAAADAAAAAABGAAAAAAADAAAAAABHAAAAAAADAAAAAABIAAAAAAADAAAAAABJAAAAAAADAAAAAABKAAAAAAADAAAAAABLAAAAAAADAAAAAABMAAAAAAADAAAAAABNAAAAAAADAAAAAABOAAAAAAADAAAAAABPAAAAAAADAAAAAABQAAAAAAADAAAAAABRAAAAAAADAAAAAABSAAAAAAADAAAAAABTAAAAAAADAAAAAABUAAAAAAADAAAAAABVAAAAAAADAAAAAABWAAAAAAADAAAAAABXAAAAAAADAAAAAABYAAAAAAADAAAAAABZAAAAAAADAAAAAABaAAAAAAADAAAAAABbAAAAAAADAAAAAABcAAAAAAADAAAAAABdAAAAAAADAAAAAABeAAAAAAADAAAAAABfAAAAAAADAAAAAABgAAAAAAADAAAAAABhAAAAAAADAAAAAABiAAAAAAADAAAAAABjAAAAAAADAAAAAABkAAAAAAADAAAAAABlAAAAAAADAAAAAABmAAAAAAADAAAAAABnAAAAAAADAAAAAABoAAAAAAADAAAAAABpAAAAAAADAAAAAABqAAAAAAADAAAAAABrAAAAAAADAAAAAABsAAAAAAADAAAAAABtAAAAAAADAAAAAABuAAAAAAADAAAAAABvAAAAAAADAAAAAABwAAAAAAADAAAAAABxAAAAAAADAAAAAAByAAAAAAADAAAAAABzAAAAAAADAAAAAAB0AAAAAAADAAAAAAB1AAAAAAADAAAAAAB2AAAAAAADAAAAAAB3AAAAAAADAAAAAAB4AAAAAAADAAAAAAB5AAAAAAADAAAAAAB6AAAAAAADAAAAAAB7AAAAAAADAAAAAAB8AAAAAAADAAAAAAB9AAAAAAADAAAAAAB+AAAAAAADAAAAAAB/AAAAAAADAAAAAACAAAAAAAADAAAAAACBAAAAAAADAAAAAACCAAAAAAADAAAAAACDAAAAAAADAAAAAACEAAAAAAADAAAAAACFAAAAAAADAAAAAACGAAAAAAADAAAAAACHAAAAAAADAAAAAACIAAAAAAADAAAAAACJAAAAAAADAAAAAACKAAAAAAADAAAAAACLAAAAAAADAAAAAACMAAAAAAADAAAAAACNAAAAAAAAAAEAAAAAAAEAAAABAAEAAACNAAEAAAADAAEAAAAAAAIAAAABAAEAAACNAAIAAAADAAEAAAAAAAMAAAABAAEAAACNAAMAAAADAAEAAAAAAAQAAAABAAEAAACNAAQAAAADAAEAAAAAAAUAAAABAAEAAACNAAUAAAADAAEAAAAAAAYAAAABAAEAAACNAAYAAAADAAEAAAAAAAcAAAABAAEAAACNAAcAAAADAAEAAAAAAAgAAAABAAEAAACNAAgAAAADAAEAAAAAAAkAAAABAAEAAACNAAkAAAADAAEAAAAAAAoAAAABAAEAAACNAAoAAAADAAEAAAAAAAsAAAABAAEAAACNAAsAAAADAAEAAAAAAAwAAAABAAEAAACNAAwAAAADAAEAAAAAAA0AAAABAAEAAACNAA0AAAADAAEAAAAAAA4AAAABAAEAAACNAA4AAAADAAEAAAAAAA8AAAABAAEAAACNAA8AAAADAAEAAAAAABAAAAABAAEAAACNABAAAAADAAEAAAAAABEAAAABAAEAAACNABEAAAADAAEAAAAAABIAAAABAAEAAACNABIAAAADAAEAAAAAABMAAAABAAEAAACNABMAAAADAAEAAAAAABQAAAABAAEAAACNABQAAAADAAEAAAAAABUAAAABAAEAAACNABUAAAADAAEAAAAAABYAAAABAAEAAACNABYAAAADAAEAAAAAABcAAAABAAEAAACNABcAAAADAAEAAAAAABgAAAABAAEAAACNABgAAAADAAEAAAAAABkAAAABAAEAAACNABkAAAADAAEAAAAAABoAAAABAAEAAACNABoAAAADAAEAAAAAABsAAAABAAEAAACNABsAAAADAAEAAAAAABwAAAABAAEAAACNABwAAAADAAEAAAAAAB0AAAABAAEAAACNAB0AAAADAAEAAAAAAB4AAAABAAEAAACNAB4AAAADAAEAAAAAAB8AAAABAAEAAACNAB8AAAADAAEAAAAAACAAAAABAAEAAACNACAAAAADAAEAAAAAACEAAAABAAEAAAAAACIAAAABAAEAAACNACIAAAADAAEAAAAAACMAAAABAAEAAACNACMAAAADAAEAAAAAACQAAAABAAEAAACNACQAAAADAAEAAAAAACUAAAABAAEAAACNACUAAAADAAEAAAAAACYAAAABAAEAAACNACYAAAADAAEAAAAAACcAAAABAAEAAACNACcAAAADAAEAAAAAACgAAAABAAEAAACNACgAAAADAAEAAAAAACkAAAABAAEAAACNACkAAAADAAEAAAAAACoAAAABAAEAAACNACoAAAADAAEAAAAAACsAAAABAAEAAACNACsAAAADAAEAAAAAACwAAAABAAEAAACNACwAAAADAAEAAAAAAC0AAAABAAEAAACNAC0AAAADAAEAAAAAAC4AAAABAAEAAACNAC4AAAADAAEAAAAAAC8AAAABAAEAAACNAC8AAAADAAEAAAAAADAAAAABAAEAAACNADAAAAADAAEAAAAAADEAAAABAAEAAACNADEAAAADAAEAAAAAADIAAAABAAEAAACNADIAAAADAAEAAAAAADMAAAABAAEAAACNADMAAAADAAEAAAAAADQAAAABAAEAAACNADQAAAADAAEAAAAAADUAAAABAAEAAACNADUAAAADAAEAAAAAADYAAAABAAEAAACNADYAAAADAAEAAAAAADcAAAABAAEAAACNADcAAAADAAEAAAAAADgAAAABAAEAAACNADgAAAADAAEAAAAAADkAAAABAAEAAACNADkAAAADAAEAAAAAADoAAAABAAEAAACNADoAAAADAAEAAAAAADsAAAABAAEAAACNADsAAAADAAEAAAAAADwAAAABAAEAAACNADwAAAADAAEAAAAAAD0AAAABAAEAAACNAD0AAAADAAEAAAAAAD4AAAABAAEAAACNAD4AAAADAAEAAAAAAD8AAAABAAEAAACNAD8AAAADAAEAAAAAAEAAAAABAAEAAACNAEAAAAADAAEAAAAAAEEAAAABAAEAAACNAEEAAAADAAEAAAAAAEIAAAABAAEAAACNAEIAAAADAAEAAAAAAEMAAAABAAEAAACNAEMAAAADAAEAAAAAAEQAAAABAAEAAACNAEQAAAADAAEAAAAAAEUAAAABAAEAAACNAEUAAAADAAEAAAAAAEYAAAABAAEAAACNAEYAAAADAAEAAAAAAEcAAAABAAEAAACNAEcAAAADAAEAAAAAAEgAAAABAAEAAACNAEgAAAADAAEAAAAAAEkAAAABAAEAAACNAEkAAAADAAEAAAAAAEoAAAABAAEAAACNAEoAAAADAAEAAAAAAEsAAAACABkAAAABAEsAAAADABkAAAACAEsAAAADABkAAAADAEsAAAADABkAAAAEAEsAAAADABkAAAAFAEsAAAADABkAAAAGAEsAAAADABkAAAAHAEsAAAADABkAAAAIAEsAAAADABkAAAAJAEsAAAADABkAAAAKAEsAAAADABkAAAALAEsAAAADABkAAAAMAEsAAAADABkAAAANAEsAAAADABkAAAAOAEsAAAADABkAAAAPAEsAAAADABkAAAAQAEsAAAADABkAAAARAEsAAAADABkAAAASAEsAAAADABkAAAATAEsAAAADABkAAAAUAEsAAAADABkAAAAVAEsAAAADABkAAAAWAEsAAAADABkAAAAXAEsAAAADABkAAAAYAEsAAAADABkAAAAZAEsAAAADABkAAAAaAEsAAAADABkAAAAbAEsAAAADABkAAAAcAEsAAAADABkAAAAdAEsAAAADABkAAAAeAEsAAAADABkAAAAfAEsAAAADABkAAAAgAEsAAAADABkAAAAhAEsAAAADABkAAAAiAEsAAAADABkAAAAjAEsAAAADABkAAAAkAEsAAAADABkAAAAlAEsAAAADABkAAAAmAEsAAAADABkAAAAnAEsAAAADABkAAAAoAEsAAAADABkAAAApAEsAAAADABkAAAAqAEsAAAADABkAAAArAEsAAAADABkAAAAsAEsAAAADABkAAAAtAEsAAAADABkAAAAuAEsAAAADABkAAAAvAEsAAAADABkAAAAwAEsAAAADABkAAAAxAEsAAAADABkAAAAyAEsAAAADABkAAAAzAEsAAAADABkAAAA0AEsAAAADABkAAAA1AEsAAAADABkAAAA2AEsAAAADABkAAAA3AEsAAAADABkAAAA4AEsAAAADABkAAAA5AEsAAAADABkAAAA6AEsAAAADABkAAAA7AEsAAAADABkAAAA8AEsAAAADABkAAAA9AEsAAAADABkAAAA+AEsAAAADABkAAAA/AEsAAAADABkAAABAAEsAAAADABkAAABBAEsAAAADABkAAABCAEsAAAADABkAAABDAEsAAAADABkAAABEAEsAAAADABkAAABFAEsAAAADABkAAABGAEsAAAADABkAAABHAEsAAAADABkAAABIAEsAAAADABkAAABJAEsAAAADABkAAABKAEsAAAADABkAAABLAEsAAAADABkAAABMAEsAAAADABkAAABNAEsAAAADABkAAABOAEsAAAADABkAAABPAEsAAAADABkAAABQAEsAAAADABkAAABRAEsAAAADABkAAABSAEsAAAADABkAAABTAEsAAAADABkAAABUAEsAAAADABkAAABVAEsAAAADABkAAABWAEsAAAADABkAAABXAEsAAAADABkAAABYAEsAAAADABkAAABZAEsAAAADABkAAABaAEsAAAADABkAAABbAEsAAAADABkAAABcAEsAAAADABkAAABdAEsAAAADABkAAABeAEsAAAADABkAAABfAEsAAAADABkAAABgAEsAAAADABkAAABhAEsAAAADABkAAABiAEsAAAADABkAAABjAEsAAAADABkAAABkAEsAAAADABkAAABlAEsAAAADABkAAABmAEsAAAADABkAAABnAEsAAAADABkAAABoAEsAAAADABkAAABpAEsAAAADABkAAABqAEsAAAADABkAAABrAEsAAAADABkAAABsAEsAAAADABkAAABtAEsAAAADABkAAABuAEsAAAADABkAAABvAEsAAAADABkAAABwAEsAAAADABkAAABxAEsAAAADABkAAAByAEsAAAADABkAAABzAEsAAAADABkAAAB0AEsAAAADABkAAAB1AEsAAAADABkAAAB2AEsAAAADABkAAAB3AEsAAAADABkAAAB4AEsAAAADABkAAAB5AEsAAAADABkAAAB6AEsAAAADABkAAAB7AEsAAAADABkAAAB8AEsAAAADABkAAAB9AEsAAAADABkAAAB+AEsAAAADABkAAAB/AEsAAAADABkAAACAAEsAAAADABkAAACBAEsAAAADABkAAACCAEsAAAADABkAAACDAEsAAAADABkAAACEAEsAAAADABkAAACFAEsAAAADABkAAACGAEsAAAADABkAAACHAEsAAAADABkAAACIAEsAAAADABkAAACJAEsAAAADABkAAACKAEsAAAADABkAAACLAEsAAAADABkAAACMAEsAAAADABkAAACNAEsAAAAEABkAAACNACEAAAADAAEAAAA=")
 tile_set = ExtResource("tileset")
 
-[node name="Boundaries" type="Node2D" parent="."]
-
-[node name="Nature" type="Node2D" parent="."]
-
-[node name="Road" type="Node2D" parent="Nature"]
-
-[node name="Trees" type="Node2D" parent="Nature"]
-
-[node name="Buildings" type="Node2D" parent="."]
-
-[node name="Fences" type="Node2D" parent="."]
-
-[node name="Garden" type="Node2D" parent="Fences"]
-
-[node name="EastFarm" type="Node2D" parent="Fences"]
-
-[node name="Pasture" type="Node2D" parent="Fences"]
-
-[node name="Crops" type="Node2D" parent="."]
-
-[node name="Garden" type="Node2D" parent="Crops"]
-
-[node name="EastField" type="Node2D" parent="Crops"]
-
-[node name="Plots" type="Node2D" parent="Crops"]
-
-[node name="Props" type="Node2D" parent="."]
-
-[node name="Animals" type="Node2D" parent="."]
-
-[node name="NPCs" type="Node2D" parent="."]
-
-[node name="Labels" type="Node2D" parent="."]
-
-[node name="Collisions" type="Node2D" parent="."]
-
-[node name="Buildings" type="Node2D" parent="Collisions"]
-
-[node name="Trees" type="Node2D" parent="Collisions"]
-
-[node name="Fences" type="Node2D" parent="Collisions"]
+[node name="Boundaries" type="Node2D" parent="." unique_id=982937186]
 
 [node name="BoundaryLeft" type="StaticBody2D" parent="Boundaries" unique_id=312412099]
 position = Vector2(-10, 608)
@@ -148,6 +111,16 @@ position = Vector2(1136, 1226)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boundaries/BoundaryBottom" unique_id=1608003041]
 shape = SubResource("BoundaryVertical")
+
+[node name="TownFarmExit" type="Area2D" parent="."]
+position = Vector2(20, 398)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TownFarmExit"]
+shape = SubResource("TownFarmGateShape")
+
+[node name="Nature" type="Node2D" parent="." unique_id=1940930434]
+
+[node name="Road" type="Node2D" parent="Nature" unique_id=1803397680]
 
 [node name="RoadStone00" type="Sprite2D" parent="Nature/Road" unique_id=1485537197]
 z_index = 2
@@ -364,6 +337,8 @@ position = Vector2(606, 634)
 texture = ExtResource("road")
 region_enabled = true
 region_rect = Rect2(16, 16, 16, 16)
+
+[node name="Trees" type="Node2D" parent="Nature" unique_id=1750929576]
 
 [node name="MapleTree1" type="Sprite2D" parent="Nature/Trees" unique_id=2052255958]
 z_index = 150
@@ -968,6 +943,8 @@ texture = ExtResource("tree")
 region_enabled = true
 region_rect = Rect2(64, 0, 32, 48)
 
+[node name="Buildings" type="Node2D" parent="." unique_id=964666208]
+
 [node name="MeadowHouse" type="Sprite2D" parent="Buildings" unique_id=2099307318]
 z_index = 175
 texture_filter = 1
@@ -1058,6 +1035,10 @@ texture = ExtResource("house")
 region_enabled = true
 region_rect = Rect2(144, 0, 80, 112)
 
+[node name="Fences" type="Node2D" parent="." unique_id=1540435875]
+
+[node name="Garden" type="Node2D" parent="Fences" unique_id=1721724045]
+
 [node name="GardenFenceNorth" type="Sprite2D" parent="Fences/Garden" unique_id=1686793160]
 z_index = 450
 texture_filter = 1
@@ -1076,23 +1057,7 @@ texture = ExtResource("fence")
 region_enabled = true
 region_rect = Rect2(0, 32, 48, 16)
 
-[node name="GardenFenceWest" type="Sprite2D" parent="Fences/Garden" unique_id=1963921763]
-z_index = 515
-texture_filter = 1
-position = Vector2(122, 514)
-scale = Vector2(1.5, 1.5)
-texture = ExtResource("fence")
-region_enabled = true
-region_rect = Rect2(0, 0, 16, 48)
-
-[node name="GardenFenceEast" type="Sprite2D" parent="Fences/Garden" unique_id=896810625]
-z_index = 515
-texture_filter = 1
-position = Vector2(388, 514)
-scale = Vector2(1.5, 1.5)
-texture = ExtResource("fence")
-region_enabled = true
-region_rect = Rect2(32, 0, 16, 48)
+[node name="EastFarm" type="Node2D" parent="Fences" unique_id=856963862]
 
 [node name="EastFarmFenceH1" type="Sprite2D" parent="Fences/EastFarm" unique_id=596245953]
 z_index = 488
@@ -1211,6 +1176,8 @@ texture = ExtResource("fence")
 region_enabled = true
 region_rect = Rect2(32, 0, 16, 48)
 
+[node name="Pasture" type="Node2D" parent="Fences" unique_id=979507732]
+
 [node name="PastureFenceH1" type="Sprite2D" parent="Fences/Pasture" unique_id=1364559787]
 z_index = 976
 texture_filter = 1
@@ -1318,6 +1285,10 @@ scale = Vector2(1.5, 1.5)
 texture = ExtResource("fence")
 region_enabled = true
 region_rect = Rect2(32, 0, 16, 48)
+
+[node name="Crops" type="Node2D" parent="." unique_id=2069948264]
+
+[node name="Garden" type="Node2D" parent="Crops" unique_id=490480573]
 
 [node name="SpringCrop_0_0" type="Sprite2D" parent="Crops/Garden" unique_id=477258297 groups=["forage_crop"]]
 z_index = 478
@@ -1444,6 +1415,8 @@ scale = Vector2(1.25, 1.25)
 texture = ExtResource("crops")
 region_enabled = true
 region_rect = Rect2(16, 32, 16, 32)
+
+[node name="EastField" type="Node2D" parent="Crops" unique_id=1048768598]
 
 [node name="EastCrop1" type="Sprite2D" parent="Crops/EastField" unique_id=525238262]
 z_index = 514
@@ -1742,6 +1715,8 @@ texture = ExtResource("crops")
 region_enabled = true
 region_rect = Rect2(48, 0, 16, 32)
 
+[node name="Plots" type="Node2D" parent="Crops" unique_id=2033360575]
+
 [node name="PlotCrop34" type="Sprite2D" parent="Crops/Plots" unique_id=1703123479]
 z_index = 562
 texture_filter = 1
@@ -1832,6 +1807,8 @@ texture = ExtResource("crops")
 region_enabled = true
 region_rect = Rect2(64, 96, 16, 32)
 
+[node name="Props" type="Node2D" parent="." unique_id=2060876873]
+
 [node name="TownChest" type="Sprite2D" parent="Props" unique_id=1127989563]
 z_index = 475
 texture_filter = 1
@@ -1871,6 +1848,8 @@ position = Vector2(1578, 428)
 scale = Vector2(1.5, 1.5)
 texture = ExtResource("chest")
 vframes = 2
+
+[node name="Animals" type="Node2D" parent="." unique_id=1982409397]
 
 [node name="BrownCowWest" type="Sprite2D" parent="Animals" unique_id=1147041107]
 z_index = 517
@@ -1989,6 +1968,8 @@ texture = ExtResource("chicken")
 hframes = 4
 vframes = 2
 frame = 2
+
+[node name="NPCs" type="Node2D" parent="." unique_id=470275362]
 
 [node name="NPC_Mira" type="StaticBody2D" parent="NPCs" unique_id=1365929453 groups=["village_npc"]]
 z_index = 350
@@ -2217,6 +2198,8 @@ theme_override_font_sizes/font_size = 10
 text = "ORIN"
 horizontal_alignment = 1
 
+[node name="Labels" type="Node2D" parent="." unique_id=1235248473]
+
 [node name="MeadowHouseLabel" type="Label" parent="Labels" unique_id=622924120]
 z_index = 900
 offset_left = 213.0
@@ -2241,19 +2224,6 @@ theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
 text = "POSADA DEL SOL"
-horizontal_alignment = 1
-
-[node name="TownName" type="Label" parent="Labels" unique_id=1144425211]
-z_index = 900
-offset_left = 507.0
-offset_top = 278.0
-offset_right = 637.0
-offset_bottom = 301.0
-theme_override_colors/font_color = Color(1, 0.941176, 0.784314, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 13
-text = "WILLOWMERE"
 horizontal_alignment = 1
 
 [node name="BakeryLabel" type="Label" parent="Labels" unique_id=1198728692]
@@ -2360,70 +2330,9 @@ theme_override_font_sizes/font_size = 11
 text = "CASA DEL LAGO"
 horizontal_alignment = 1
 
-[node name="MarketLabel" type="Label" parent="Labels" unique_id=855388463]
-z_index = 1500
-offset_left = 1445.0
-offset_top = 290.0
-offset_right = 1595.0
-offset_bottom = 313.0
-theme_override_colors/font_color = Color(1, 0.941176, 0.784314, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 13
-text = "PLAZA DEL MERCADO"
-horizontal_alignment = 1
+[node name="Collisions" type="Node2D" parent="." unique_id=1504681925]
 
-[node name="SouthSquareLabel" type="Label" parent="Labels" unique_id=1748384723]
-z_index = 1500
-offset_left = 501.0
-offset_top = 826.0
-offset_right = 651.0
-offset_bottom = 849.0
-theme_override_colors/font_color = Color(1, 0.941176, 0.784314, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 12
-text = "PLAZA SUR"
-horizontal_alignment = 1
-
-[node name="LakeLabel" type="Label" parent="Labels" unique_id=611167008]
-z_index = 1500
-offset_left = 1875.0
-offset_top = 1050.0
-offset_right = 2025.0
-offset_bottom = 1073.0
-theme_override_colors/font_color = Color(0.9, 0.97, 1, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 12
-text = "LAGO WILLOW"
-horizontal_alignment = 1
-
-[node name="EastFarmLabel" type="Label" parent="Labels" unique_id=535059898]
-z_index = 1500
-offset_left = 1735.0
-offset_top = 456.0
-offset_right = 1865.0
-offset_bottom = 479.0
-theme_override_colors/font_color = Color(0.964706, 0.941176, 0.858824, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 11
-text = "GRANJA ESTE"
-horizontal_alignment = 1
-
-[node name="PastureLabel" type="Label" parent="Labels" unique_id=1948302654]
-z_index = 1500
-offset_left = 759.0
-offset_top = 948.0
-offset_right = 889.0
-offset_bottom = 971.0
-theme_override_colors/font_color = Color(0.964706, 0.941176, 0.858824, 1)
-theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 11
-text = "PASTIZAL"
-horizontal_alignment = 1
+[node name="Buildings" type="Node2D" parent="Collisions" unique_id=1230385749]
 
 [node name="MeadowHouseCollision" type="StaticBody2D" parent="Collisions/Buildings" unique_id=214693841]
 position = Vector2(265, 232)
@@ -2494,6 +2403,8 @@ position = Vector2(2050, 828)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collisions/Buildings/LakeHouseCollision" unique_id=1430959152]
 position = Vector2(0, -46)
 shape = SubResource("HouseCollision")
+
+[node name="Trees" type="Node2D" parent="Collisions" unique_id=25197849]
 
 [node name="MapleTreeCollision1" type="StaticBody2D" parent="Collisions/Trees" unique_id=1798297749]
 z_index = 150
@@ -3024,6 +2935,8 @@ position = Vector2(2200, 1179)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collisions/Trees/MapleTreeCollision67" unique_id=1460775186]
 position = Vector2(0.5, 8.5)
 shape = SubResource("TreeCollision")
+
+[node name="Fences" type="Node2D" parent="Collisions" unique_id=1964462854]
 
 [node name="GardenNorthCollision" type="StaticBody2D" parent="Collisions/Fences" unique_id=827555323]
 z_index = 450

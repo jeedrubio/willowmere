@@ -13,6 +13,10 @@ const MOVE_DOWN := &"move_down"
 const INTERACT := &"interact"
 const INVENTORY := &"inventory"
 const ENTER := &"enter"   # entrar / salir de una casa estando en la puerta
+const HOTBAR_ACTIONS := [
+	&"hotbar_1", &"hotbar_2", &"hotbar_3", &"hotbar_4",
+	&"hotbar_5", &"hotbar_6", &"hotbar_7", &"hotbar_8",
+]
 # Acciones integradas de Godot (Enter / Espacio y Esc por defecto).
 const CONFIRM := &"ui_accept"
 const CANCEL := &"ui_cancel"
@@ -25,6 +29,14 @@ const _DEFAULT_KEYS := {
 	&"interact": [KEY_E],
 	&"inventory": [KEY_I],
 	&"enter": [KEY_F],
+	&"hotbar_1": [KEY_1],
+	&"hotbar_2": [KEY_2],
+	&"hotbar_3": [KEY_3],
+	&"hotbar_4": [KEY_4],
+	&"hotbar_5": [KEY_5],
+	&"hotbar_6": [KEY_6],
+	&"hotbar_7": [KEY_7],
+	&"hotbar_8": [KEY_8],
 }
 
 
@@ -62,7 +74,7 @@ static func key_label(action: StringName) -> String:
 
 
 static func hud_hint() -> String:
-	return "WASD MOVER  ·  %s INTERACTUAR  ·  %s PUERTAS  ·  %s MOCHILA  ·  ESC MENÚ" % [
+	return "WASD MOVER  ·  %s USAR  ·  1–8 ELEGIR  ·  %s PUERTAS  ·  %s MOCHILA  ·  ESC MENÚ" % [
 		key_label(INTERACT).to_upper(),
 		key_label(ENTER).to_upper(),
 		key_label(INVENTORY).to_upper(),
@@ -77,7 +89,8 @@ static func title_hint() -> String:
 static func help_rows() -> Array:
 	return [
 		{"action": "Moverse", "keys": ["W", "A", "S", "D", "FLECHAS"]},
-		{"action": "Hablar con un aldeano / cosechar un cultivo", "keys": [key_label(INTERACT).to_upper()]},
+		{"action": "Hablar, usar una herramienta o trabajar la parcela", "keys": [key_label(INTERACT).to_upper()]},
+		{"action": "Elegir una herramienta o semillas", "keys": ["1–8"]},
 		{"action": "Entrar o salir de una casa (en la puerta)", "keys": [key_label(ENTER).to_upper()]},
 		{"action": "Abrir la mochila", "keys": [key_label(INVENTORY).to_upper()]},
 		{"action": "Menú de pausa / cerrar ventanas", "keys": ["ESC"]},

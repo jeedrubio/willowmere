@@ -1,0 +1,357 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/farm_world_builder.gd" id="1_builder"]
+[ext_resource type="TileSet" path="res://terrain/willowmere_tileset.tres" id="2_tileset"]
+[ext_resource type="Texture2D" path="res://asset_pack/Objects/Road copiar.png" id="3_road"]
+[ext_resource type="Texture2D" path="res://asset_pack/Objects/House.png" id="4_house"]
+[ext_resource type="Texture2D" path="res://asset_pack/Objects/Spring Crops.png" id="5_crops"]
+[ext_resource type="Texture2D" path="res://asset_pack/Objects/Maple Tree.png" id="6_tree"]
+[ext_resource type="Texture2D" path="res://asset_pack/Objects/Fence's copiar.png" id="7_fence"]
+[ext_resource type="Texture2D" path="res://asset_pack/Farm Animals/Chicken Red.png" id="8_chicken"]
+[ext_resource type="Texture2D" path="res://asset_pack/Farm Animals/Female Cow Brown.png" id="9_cow"]
+
+[sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
+size = Vector2(20, 1256)
+
+[sub_resource type="RectangleShape2D" id="BoundaryVertical"]
+size = Vector2(2312, 20)
+
+[sub_resource type="RectangleShape2D" id="FarmGateShape"]
+size = Vector2(56, 78)
+
+[sub_resource type="RectangleShape2D" id="FarmHouseShape"]
+size = Vector2(100, 52)
+
+[node name="Farm" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_builder")
+
+[node name="Ground" type="TileMapLayer" parent="."]
+z_index = -50
+texture_filter = 1
+tile_set = ExtResource("2_tileset")
+
+[node name="Boundaries" type="Node2D" parent="."]
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="Boundaries"]
+position = Vector2(-10, 608)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boundaries/BoundaryLeft"]
+shape = SubResource("BoundaryHorizontal")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="Boundaries"]
+position = Vector2(2282, 608)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boundaries/BoundaryRight"]
+shape = SubResource("BoundaryHorizontal")
+
+[node name="BoundaryTop" type="StaticBody2D" parent="Boundaries"]
+position = Vector2(1136, -10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boundaries/BoundaryTop"]
+shape = SubResource("BoundaryVertical")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="Boundaries"]
+position = Vector2(1136, 1226)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boundaries/BoundaryBottom"]
+shape = SubResource("BoundaryVertical")
+
+[node name="Road" type="Node2D" parent="."]
+
+[node name="RoadStone00" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(1827, 380)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 16)
+
+[node name="RoadStone01" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(1894, 398)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(16, 0, 16, 16)
+
+[node name="RoadStone02" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(1961, 416)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(32, 0, 16, 16)
+
+[node name="RoadStone03" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(2028, 380)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(48, 0, 16, 16)
+
+[node name="RoadStone04" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(2095, 398)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(64, 0, 16, 16)
+
+[node name="RoadStone05" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(2162, 416)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(0, 16, 16, 16)
+
+[node name="RoadStone06" type="Sprite2D" parent="Road"]
+z_index = 2
+texture_filter = 1
+position = Vector2(2229, 398)
+texture = ExtResource("3_road")
+region_enabled = true
+region_rect = Rect2(16, 16, 16, 16)
+
+[node name="FarmTownExit" type="Area2D" parent="."]
+position = Vector2(2252, 398)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FarmTownExit"]
+shape = SubResource("FarmGateShape")
+
+[node name="Farmhouse" type="Sprite2D" parent="."]
+z_index = 330
+texture_filter = 1
+position = Vector2(1985, 275)
+scale = Vector2(1.4, 1.4)
+texture = ExtResource("4_house")
+region_enabled = true
+region_rect = Rect2(144, 0, 80, 112)
+
+[node name="FarmhouseCollision" type="StaticBody2D" parent="."]
+position = Vector2(1985, 300)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FarmhouseCollision"]
+shape = SubResource("FarmHouseShape")
+
+[node name="FarmLabel" type="Label" parent="."]
+z_index = 900
+offset_left = 1930.0
+offset_top = 355.0
+offset_right = 2040.0
+offset_bottom = 378.0
+theme_override_colors/font_color = Color(1, 0.941176, 0.784314, 1)
+theme_override_colors/font_outline_color = Color(0.160784, 0.262745, 0.235294, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 11
+text = "TU GRANJA"
+horizontal_alignment = 1
+
+[node name="Trees" type="Node2D" parent="."]
+
+[node name="MapleTree1" type="Sprite2D" parent="Trees"]
+z_index = 280
+texture_filter = 1
+position = Vector2(1830, 280)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("6_tree")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 48)
+
+[node name="MapleTree2" type="Sprite2D" parent="Trees"]
+z_index = 600
+texture_filter = 1
+position = Vector2(2180, 600)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("6_tree")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 48)
+
+[node name="MapleTree3" type="Sprite2D" parent="Trees"]
+z_index = 690
+texture_filter = 1
+position = Vector2(1840, 690)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("6_tree")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 48)
+
+[node name="Fences" type="Node2D" parent="."]
+
+[node name="FieldFenceNorth1" type="Sprite2D" parent="Fences"]
+z_index = 490
+texture_filter = 1
+position = Vector2(1900, 490)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceNorth2" type="Sprite2D" parent="Fences"]
+z_index = 490
+texture_filter = 1
+position = Vector2(1972, 490)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceNorth3" type="Sprite2D" parent="Fences"]
+z_index = 490
+texture_filter = 1
+position = Vector2(2044, 490)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceSouth1" type="Sprite2D" parent="Fences"]
+z_index = 634
+texture_filter = 1
+position = Vector2(1900, 634)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceSouth2" type="Sprite2D" parent="Fences"]
+z_index = 634
+texture_filter = 1
+position = Vector2(1972, 634)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceSouth3" type="Sprite2D" parent="Fences"]
+z_index = 634
+texture_filter = 1
+position = Vector2(2044, 634)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 32, 48, 16)
+
+[node name="FieldFenceWest1" type="Sprite2D" parent="Fences"]
+z_index = 526
+texture_filter = 1
+position = Vector2(1864, 526)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 48)
+
+[node name="FieldFenceWest2" type="Sprite2D" parent="Fences"]
+z_index = 598
+texture_filter = 1
+position = Vector2(1864, 598)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 48)
+
+[node name="FieldFenceEast1" type="Sprite2D" parent="Fences"]
+z_index = 526
+texture_filter = 1
+position = Vector2(2080, 526)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(32, 0, 16, 48)
+
+[node name="FieldFenceEast2" type="Sprite2D" parent="Fences"]
+z_index = 598
+texture_filter = 1
+position = Vector2(2080, 598)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_fence")
+region_enabled = true
+region_rect = Rect2(32, 0, 16, 48)
+
+[node name="Crops" type="Node2D" parent="."]
+visible = false
+
+[node name="CropRow1_1" type="Sprite2D" parent="Crops"]
+z_index = 534
+texture_filter = 1
+position = Vector2(1902, 534)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 32)
+
+[node name="CropRow1_2" type="Sprite2D" parent="Crops"]
+z_index = 534
+texture_filter = 1
+position = Vector2(1942, 534)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(16, 0, 16, 32)
+
+[node name="CropRow1_3" type="Sprite2D" parent="Crops"]
+z_index = 534
+texture_filter = 1
+position = Vector2(1982, 534)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(32, 0, 16, 32)
+
+[node name="CropRow1_4" type="Sprite2D" parent="Crops"]
+z_index = 534
+texture_filter = 1
+position = Vector2(2022, 534)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(48, 0, 16, 32)
+
+[node name="CropRow2_1" type="Sprite2D" parent="Crops"]
+z_index = 574
+texture_filter = 1
+position = Vector2(1902, 574)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(0, 32, 16, 32)
+
+[node name="CropRow2_2" type="Sprite2D" parent="Crops"]
+z_index = 574
+texture_filter = 1
+position = Vector2(1942, 574)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(16, 32, 16, 32)
+
+[node name="CropRow2_3" type="Sprite2D" parent="Crops"]
+z_index = 574
+texture_filter = 1
+position = Vector2(1982, 574)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_crops")
+region_enabled = true
+region_rect = Rect2(32, 32, 16, 32)
+
+[node name="Animals" type="Node2D" parent="."]
+
+[node name="BrownCow" type="Sprite2D" parent="Animals"]
+z_index = 568
+texture_filter = 1
+position = Vector2(2118, 568)
+scale = Vector2(1.35, 1.35)
+texture = ExtResource("9_cow")
+hframes = 4
+vframes = 3
+
+[node name="RedChicken" type="Sprite2D" parent="Animals"]
+z_index = 590
+texture_filter = 1
+position = Vector2(2030, 590)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("8_chicken")
+hframes = 4
+vframes = 2

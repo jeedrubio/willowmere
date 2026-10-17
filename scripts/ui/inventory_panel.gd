@@ -62,7 +62,7 @@ func setup(inventory: Inventory) -> void:
 	_detail_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_desc.custom_minimum_size = Vector2(COLUMNS * (SLOT_SIZE + 6), 30)
 	column.add_child(_detail_desc)
-	column.add_child(UiKit.label("I / ESC  CERRAR", 9, UiKit.COLOR_FAINT))
+	column.add_child(UiKit.label("I / ESC  CERRAR  ·  1–8 ELEGIR HERRAMIENTA", 9, UiKit.COLOR_FAINT))
 
 	_inventory.changed.connect(_refresh)
 	_refresh()

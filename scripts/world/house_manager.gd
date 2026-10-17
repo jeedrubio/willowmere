@@ -27,13 +27,17 @@ const HOUSES := [
 	{"node": "LakeHouse", "name": "Casa del Lago", "interior": "lake"},
 ]
 
+const FARM_HOUSES := [
+	{"node": "Farmhouse", "name": "Casa de la Granja", "interior": "farmhome"},
+]
+
 ## Cada puerta: {name, interior, point (donde se interactúa), exit_position (dónde reaparece el jugador)}
 var doors: Array[Dictionary] = []
 
 
-func setup(world: Node2D) -> void:
+func setup(world: Node2D, house_definitions: Array = HOUSES) -> void:
 	doors.clear()
-	for house in HOUSES:
+	for house in house_definitions:
 		var sprite := world.find_child(String(house["node"]), true, false) as Sprite2D
 		if sprite == null:
 			push_warning("Casa '%s' no encontrada en World; se ignora." % house["node"])

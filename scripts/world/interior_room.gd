@@ -5,8 +5,11 @@ extends Node2D
 ## ahí al jugador; las posiciones que devuelve son coordenadas de World.
 
 const EXIT_REACH := 42.0
+const BED_REACH := 44.0
 
 var _theme: Dictionary = {}
+var _has_bed := false
+var _bed_interaction_point := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -37,6 +40,8 @@ func clear() -> void:
 		remove_child(child)
 		child.queue_free()
 	_theme = {}
+	_has_bed = false
+	_bed_interaction_point = Vector2.ZERO
 	visible = false
 	queue_redraw()
 
@@ -53,6 +58,15 @@ func exit_point() -> Vector2:
 
 func near_exit(player_position: Vector2) -> bool:
 	return visible and player_position.distance_to(exit_point()) <= EXIT_REACH
+
+
+func near_bed(player_position: Vector2) -> bool:
+	return visible and _has_bed and player_position.distance_to(_bed_interaction_point) <= BED_REACH
+
+
+## Dónde se despierta el jugador al completar una noche, en coordenadas de World.
+func wake_position() -> Vector2:
+	return _bed_interaction_point if _has_bed else spawn_position()
 
 
 ## Rectángulo por el que puede moverse el centro del jugador (coordenadas de World).
@@ -112,6 +126,9 @@ func _add_prop(prop_name: String, x: float, y: float, host_y: float = -1.0) -> v
 	var def: Dictionary = InteriorDb.PROPS[prop_name]
 	var rect: Rect2 = def["rect"]
 	var kind := String(def.get("kind", "solid"))
+	if not _has_bed and (prop_name == "bed_v" or prop_name == "bed_h"):
+		_has_bed = true
+		_bed_interaction_point = position + Vector2(x + 30.0, y - 8.0) * InteriorDb.SCALE
 
 	var sprite := Sprite2D.new()
 	sprite.texture = InteriorDb.ATLAS

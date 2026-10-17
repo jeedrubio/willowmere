@@ -78,6 +78,10 @@ func registrar_accion(tipo: String, detalle: String, valor: int = 10) -> void:
 	sincronizar_con_bd(tipo, detalle, valor)
 
 
+func registrar_evento(tipo: String, detalle: String, valor: int = 0) -> void:
+	sincronizar_con_bd(tipo, detalle, valor)
+
+
 func sincronizar_con_bd(evento_tipo: String = "", evento_detalle: String = "", evento_valor: int = 0) -> void:
 	var req := HTTPRequest.new()
 	add_child(req)
