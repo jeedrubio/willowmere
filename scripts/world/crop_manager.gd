@@ -1,19 +1,9 @@
 class_name CropManager
 extends Node
-## Cultivos vivos. Cada Sprite2D de World.tscn que use "Spring Crops.png" se
-## convierte en una parcela: crece por etapas con el tiempo, se puede cosechar
-## cuando madura, queda vacía un rato y vuelve a brotar desde semilla.
-##
-## El tipo de cultivo sale de la fila del recorte (region_rect) del sprite:
-## 0 fresa, 1 puerro, 2 papa, 3 cebolla (ver ItemDb.CROP_ROWS). Para añadir
-## parcelas basta con colocar otro sprite de cultivo en el campo.
 
-## Segundos que tarda cada etapa de crecimiento (se multiplica por ItemDb.GROWTH_SCALE).
 const SECONDS_PER_STAGE := 9.0
-## Espera con la parcela vacía antes de que brote una semilla nueva.
 const REGROW_DELAY_MIN := 6.0
 const REGROW_DELAY_MAX := 14.0
-## Probabilidad de que una parcela empiece ya madura al iniciar el juego.
 const START_MATURE_CHANCE := 0.4
 const CROP_TEXTURE_FILE := "Spring Crops.png"
 
@@ -37,7 +27,6 @@ class CropPlot:
 	func item_id() -> String:
 		return String(ItemDb.CROP_ROWS[row])
 
-	## Avance total de 0.0 a 1.0.
 	func progress() -> float:
 		if empty:
 			return 0.0
@@ -53,7 +42,6 @@ var _rng := RandomNumberGenerator.new()
 
 func setup(world: Node) -> void:
 	_rng.randomize()
-	# Los cultivos están en subcarpetas de World (Crops/...), así que se busca en todo el árbol.
 	for child in world.find_children("*", "Sprite2D", true, false):
 		var sprite := child as Sprite2D
 		if sprite == null or sprite.texture == null:
@@ -108,7 +96,6 @@ func _apply_visual(plot: CropPlot, pop: bool) -> void:
 		tween.tween_property(sprite, "scale", plot.base_scale, 0.25)
 
 
-## Parcela más cercana a `pos` dentro de `max_distance` (en coordenadas de World).
 func nearest_plot(pos: Vector2, max_distance: float, mature_only: bool) -> CropPlot:
 	var closest: CropPlot = null
 	var closest_distance := max_distance
@@ -122,11 +109,14 @@ func nearest_plot(pos: Vector2, max_distance: float, mature_only: bool) -> CropP
 	return closest
 
 
-## Cosecha una parcela madura: queda vacía y rebrotará sola.
 func harvest(plot: CropPlot) -> bool:
 	if plot == null or not plot.is_mature():
 		return false
+	var nombre_cultivo := ItemDb.display_name(plot.item_id())
 	plot.empty = true
 	plot.timer = _rng.randf_range(REGROW_DELAY_MIN, REGROW_DELAY_MAX)
 	_apply_visual(plot, false)
+	var db := get_tree().root.get_node_or_null("DBManager")
+	if db:
+		db.registrar_accion("Cosecha", "Cosechó " + nombre_cultivo + " en el campo", 5)
 	return true

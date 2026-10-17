@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://btss154spgcyh" path="res://scenes/World.tscn" id="2_world"]
 [ext_resource type="Script" uid="uid://btj86ocfwe7me" path="res://scripts/ui/game_hud.gd" id="3_hud"]
 [ext_resource type="Script" uid="uid://crmi6k8mq74jl" path="res://scripts/systems/gemini_client.gd" id="4_gemini"]
-[ext_resource type="Script" path="res://scripts/systems/music_player.gd" id="5_music"]
+[ext_resource type="Script" uid="uid://d052wup6hg7m6" path="res://scripts/systems/music_player.gd" id="5_music"]
 
 [node name="WillowmereRPG" type="Node2D" unique_id=1328301884]
 script = ExtResource("1_main")
@@ -29,5 +29,5 @@ script = ExtResource("3_hud")
 [node name="GeminiClient" type="Node" parent="." unique_id=2010134000]
 script = ExtResource("4_gemini")
 
-[node name="MusicPlayer" type="Node" parent="."]
+[node name="MusicPlayer" type="Node" parent="." unique_id=311633928]
 script = ExtResource("5_music")

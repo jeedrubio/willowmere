@@ -1,15 +1,14 @@
 class_name Inventory
 extends RefCounted
-## Mochila del jugador: casillas con pilas de objetos más monedas.
 
 signal changed
 
 const SLOT_COUNT := 24
 const MAX_STACK := 99
 
-## Cada casilla es {} (vacía) o {"id": String, "count": int}.
 var slots: Array[Dictionary] = []
 var coins := 0
+var is_clone := false
 
 
 func _init() -> void:
@@ -17,7 +16,11 @@ func _init() -> void:
 		slots.append({})
 
 
-## Añade objetos. Devuelve cuántos NO cupieron (0 = todo guardado).
+func _db() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	return tree.root.get_node_or_null("DBManager") if tree else null
+
+
 func add(id: String, amount: int = 1) -> int:
 	var left := amount
 	for slot in slots:
@@ -34,21 +37,29 @@ func add(id: String, amount: int = 1) -> int:
 			var stack := mini(MAX_STACK, left)
 			slots[i] = {"id": id, "count": stack}
 			left -= stack
-	if left != amount:
+	var guardados := amount - left
+	if guardados > 0:
 		changed.emit()
+		if not is_clone:
+			var db := _db()
+			if db:
+				db.registrar_coleccionable(ItemDb.display_name(id), guardados)
 	return left
 
 
 func add_coins(amount: int) -> void:
 	coins += amount
 	changed.emit()
+	if not is_clone and amount > 0:
+		var db := _db()
+		if db:
+			db.agregar_monedas(amount, "Monedas obtenidas")
 
 
 func count(id: String) -> int:
 	return count_matching(id)
 
 
-## Cuenta objetos que cumplen `wanted` (un id o ItemDb.ANY_CROP).
 func count_matching(wanted: String) -> int:
 	var total := 0
 	for slot in slots:
@@ -61,7 +72,6 @@ func has_item(id: String, amount: int = 1) -> bool:
 	return count_matching(id) >= amount
 
 
-## Quita `amount` objetos que cumplan `wanted`. Devuelve false (sin quitar nada) si no alcanzan.
 func remove_matching(wanted: String, amount: int) -> bool:
 	if count_matching(wanted) < amount:
 		return false
@@ -81,9 +91,9 @@ func remove_matching(wanted: String, amount: int) -> bool:
 	return true
 
 
-## Copia independiente (sirve para comprobar si algo cabe sin tocar la mochila real).
 func clone() -> Inventory:
 	var copy := Inventory.new()
+	copy.is_clone = true
 	copy.coins = coins
 	for i in slots.size():
 		copy.slots[i] = slots[i].duplicate()

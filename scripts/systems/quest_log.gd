@@ -1,17 +1,5 @@
 class_name QuestLog
 extends RefCounted
-## Misiones de los vecinos. Todas son de entrega: piden objetos que el jugador
-## lleva en su Inventory y los consumen al entregarlos.
-##
-## Para añadir una misión agrega un diccionario a QUESTS:
-##   id            identificador único
-##   giver         NpcProfile.id de quien la da (data/npcs/*.tres)
-##   giver_name    nombre que se muestra en el HUD
-##   requires      ids de misiones que deben estar completadas antes
-##   needs         {id de objeto o ItemDb.ANY_CROP: cantidad}
-##   reward_coins  monedas
-##   reward_items  {id de objeto: cantidad}
-##   offer / progress / complete / after   textos de diálogo
 
 signal changed
 signal quest_started(title: String)
@@ -100,9 +88,13 @@ const QUESTS := [
 	},
 ]
 
-## "active" o "done" por id de misión. Sin entrada = todavía no aceptada.
 var states := {}
 var inventory: Inventory
+
+
+func _db() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	return tree.root.get_node_or_null("DBManager") if tree else null
 
 
 func attach_inventory(inv: Inventory) -> void:
@@ -129,7 +121,6 @@ func _requirements_met(quest: Dictionary) -> bool:
 	return true
 
 
-## Misión que `giver_id` tiene para ofrecer o recibir ahora (activa primero).
 func _quest_for(giver_id: String) -> Dictionary:
 	for entry in QUESTS:
 		var quest: Dictionary = entry
@@ -150,7 +141,6 @@ func _needs_met(quest: Dictionary) -> bool:
 	return true
 
 
-## ¿Caben las recompensas una vez entregados los objetos?
 func _rewards_fit(quest: Dictionary) -> bool:
 	var test := inventory.clone()
 	var needs: Dictionary = quest["needs"]
@@ -173,8 +163,6 @@ func _have_text(quest: Dictionary) -> String:
 	return ", ".join(parts)
 
 
-## Diálogo de misión de este vecino. Devuelve "" si no tiene nada que decir
-## (entonces se usa su saludo normal). Aquí se aceptan y se entregan misiones.
 func talk_to(profile: NpcProfile) -> String:
 	if profile == null or inventory == null:
 		return ""
@@ -192,6 +180,9 @@ func talk_to(profile: NpcProfile) -> String:
 	states[id] = "active"
 	quest_started.emit(String(quest["title"]))
 	changed.emit()
+	var db := _db()
+	if db:
+		db.registrar_accion("Misión Aceptada", String(quest["title"]) + " (" + String(quest["giver_name"]) + ")", 10)
 	return String(quest["offer"])
 
 
@@ -216,11 +207,13 @@ func _complete(quest: Dictionary) -> void:
 		reward_names.append(ItemDb.display_name(String(key)))
 	if coins > 0:
 		inventory.add_coins(coins)
+	var db := _db()
+	if db:
+		db.registrar_mision(String(quest["title"]))
 	quest_completed.emit(String(quest["title"]), coins, reward_names)
 	changed.emit()
 
 
-## Datos para el HUD: una entrada por misión activa.
 func tracker_entries() -> Array:
 	var entries: Array = []
 	for entry in QUESTS:
@@ -246,7 +239,6 @@ func tracker_entries() -> Array:
 	return entries
 
 
-## Texto del HUD cuando no hay ninguna misión activa.
 func idle_text() -> String:
 	if done_count() >= QUESTS.size():
 		return "¡Todos los encargos completados! Willowmere te lo agradece."
