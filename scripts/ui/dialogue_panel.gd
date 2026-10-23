@@ -64,7 +64,7 @@ func _ready() -> void:
 	_message_input.text_submitted.connect(_on_text_submitted)
 	input_row.add_child(_message_input)
 	_send_button = UiKit.primary_button("Enviar  ↗", 11)
-	_send_button.custom_minimum_size = Vector2(93, 38)
+	_send_button.custom_minimum_size = Vector2(100, 42)
 	_send_button.pressed.connect(_submit)
 	input_row.add_child(_send_button)
 
@@ -201,7 +201,7 @@ func _build_header() -> HBoxContainer:
 	header.add_child(_status_label)
 
 	var close_button := UiKit.ghost_button("Esc  ×")
-	close_button.custom_minimum_size = Vector2(67, 31)
+	close_button.custom_minimum_size = Vector2(76, 40)
 	close_button.pressed.connect(close_requested.emit)
 	header.add_child(close_button)
 	return header

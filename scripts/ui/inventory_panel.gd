@@ -4,7 +4,7 @@ extends Control
 ## bajo el cursor. Se abre y cierra desde Main (tecla del Input Map "inventory").
 
 const COLUMNS := 6
-const SLOT_SIZE := 62
+const SLOT_SIZE := 64
 
 var _inventory: Inventory
 var _icons: Array[TextureRect] = []
@@ -17,55 +17,45 @@ var _detail_desc: Label
 
 func setup(inventory: Inventory) -> void:
 	_inventory = inventory
-	UiKit.full_rect(self)
-	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
 
-	var dim := ColorRect.new()
-	dim.color = Color(0.03, 0.06, 0.1, 0.55)
-	UiKit.full_rect(dim)
-	add_child(dim)
+	var parts := UiKit.build_modal(self, 0, 30, 0.6)
+	var column: VBoxContainer = parts["content"]
+	(parts["shade"] as ColorRect).gui_input.connect(_on_shade_input)
 
-	var center := CenterContainer.new()
-	UiKit.full_rect(center)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(center)
-
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.COLOR_CARD, 16, UiKit.COLOR_BORDER, 1))
-	center.add_child(panel)
-	var margin := UiKit.margin(22, 22, 18, 18)
-	panel.add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 12)
-	margin.add_child(column)
-
-	var header := HBoxContainer.new()
-	column.add_child(header)
-	var title := UiKit.label("MOCHILA", 18, UiKit.COLOR_TEXT)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(title)
-	_coins_label = UiKit.label("", 13, UiKit.COLOR_ACCENT)
+	var header := UiKit.modal_header("Mochila", "COSECHAS Y RECOMPENSAS", close)
+	_coins_label = UiKit.label("", 15, UiKit.INK_ACCENT)
+	_coins_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	header.add_child(_coins_label)
+	header.move_child(_coins_label, header.get_child_count() - 2)
+	column.add_child(header)
+	column.add_child(UiKit.divider())
 
 	var grid := GridContainer.new()
 	grid.columns = COLUMNS
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 6)
 	column.add_child(grid)
 	for i in Inventory.SLOT_COUNT:
 		grid.add_child(_build_slot(i))
 
-	_detail_name = UiKit.label("", 13, UiKit.COLOR_TEXT)
+	column.add_child(UiKit.divider())
+	_detail_name = UiKit.label("", 15, UiKit.INK)
 	column.add_child(_detail_name)
-	_detail_desc = UiKit.label("", 11, UiKit.COLOR_MUTED)
+	_detail_desc = UiKit.label("", 13, UiKit.INK_SOFT)
 	_detail_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_desc.custom_minimum_size = Vector2(COLUMNS * (SLOT_SIZE + 6), 30)
+	_detail_desc.custom_minimum_size = Vector2(COLUMNS * (SLOT_SIZE + 6), 38)
 	column.add_child(_detail_desc)
-	column.add_child(UiKit.label("I / ESC  CERRAR", 9, UiKit.COLOR_FAINT))
+	column.add_child(UiKit.label("I / ESC  CERRAR", 11, UiKit.INK_FAINT))
 
 	_inventory.changed.connect(_refresh)
 	_refresh()
+
+
+func _on_shade_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		close()
 
 
 func open() -> void:
@@ -81,7 +71,7 @@ func close() -> void:
 func _build_slot(index: int) -> PanelContainer:
 	var slot := PanelContainer.new()
 	slot.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
-	slot.add_theme_stylebox_override("panel", UiKit.panel_style(Color("#0E1B2B"), 9, UiKit.COLOR_BORDER, 1))
+	slot.add_theme_stylebox_override("panel", UiKit.panel_style(Color("#E9BE8A"), 3, UiKit.INK, 2))
 	slot.mouse_entered.connect(_show_detail.bind(index))
 	var holder := Control.new()
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -108,7 +98,7 @@ func _build_slot(index: int) -> PanelContainer:
 	holder.add_child(glyph)
 	_glyphs.append(glyph)
 
-	var count := UiKit.label("", 11, UiKit.COLOR_TEXT)
+	var count := UiKit.label("", 12, UiKit.INK)
 	count.anchor_left = 1.0
 	count.anchor_right = 1.0
 	count.anchor_top = 1.0
@@ -118,7 +108,7 @@ func _build_slot(index: int) -> PanelContainer:
 	count.offset_top = -19
 	count.offset_bottom = -3
 	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	count.add_theme_color_override("font_outline_color", Color("#0A1523"))
+	count.add_theme_color_override("font_outline_color", UiKit.PAPER_LIGHT)
 	count.add_theme_constant_override("outline_size", 4)
 	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.add_child(count)
@@ -152,7 +142,7 @@ func _refresh() -> void:
 func _show_detail(index: int) -> void:
 	if index < 0 or index >= _inventory.slots.size() or _inventory.slots[index].is_empty():
 		_detail_name.text = ""
-		_detail_desc.text = "Aquí se guardan los cultivos que cosechas y las recompensas que ganas."
+		_detail_desc.text = "Pasa el cursor sobre un objeto para ver su descripción."
 		return
 	var id := String(_inventory.slots[index]["id"])
 	_detail_name.text = ItemDb.display_name(id)

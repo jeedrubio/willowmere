@@ -90,11 +90,18 @@ const QUESTS := [
 
 var states := {}
 var inventory: Inventory
+## Segundos de juego activo (Telemetry.active_seconds) en que se aceptó cada encargo; solo para medir cuánto tardan.
+var _accepted_at := {}
 
 
 func _db() -> Node:
 	var tree := Engine.get_main_loop() as SceneTree
 	return tree.root.get_node_or_null("DBManager") if tree else null
+
+
+func _tele() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	return tree.root.get_node_or_null("Telemetry") if tree else null
 
 
 func attach_inventory(inv: Inventory) -> void:
@@ -178,6 +185,10 @@ func talk_to(profile: NpcProfile) -> String:
 			return String(quest["complete"])
 		return "%s\n\n(Tienes: %s)" % [String(quest["progress"]), _have_text(quest)]
 	states[id] = "active"
+	var tele := _tele()
+	if tele != null:
+		_accepted_at[id] = tele.active_seconds
+		tele.track("juego", "encargo_aceptado", id, String(quest["title"]))
 	quest_started.emit(String(quest["title"]))
 	changed.emit()
 	var db := _db()
@@ -199,6 +210,12 @@ func _complete(quest: Dictionary) -> void:
 	for key in needs:
 		inventory.remove_matching(String(key), int(needs[key]))
 	states[String(quest["id"])] = "done"
+	var tele := _tele()
+	if tele != null:
+		var took := -1.0
+		if _accepted_at.has(String(quest["id"])):
+			took = tele.active_seconds - float(_accepted_at[String(quest["id"])])
+		tele.track("juego", "encargo_completado", String(quest["id"]), String(quest["title"]), took)
 	var coins := int(quest["reward_coins"])
 	var reward_names: Array = []
 	var items: Dictionary = quest["reward_items"]
@@ -243,3 +260,21 @@ func idle_text() -> String:
 	if done_count() >= QUESTS.size():
 		return "¡Todos los encargos completados! Willowmere te lo agradece."
 	return "Sin encargos activos.\nHabla con los aldeanos para encontrar nuevos."
+
+
+## Estado para guardar la partida (id de encargo -> "active" | "done").
+func to_dict() -> Dictionary:
+	return states.duplicate()
+
+
+func load_dict(data: Dictionary) -> void:
+	states.clear()
+	var known := {}
+	for entry in QUESTS:
+		var quest: Dictionary = entry
+		known[String(quest["id"])] = true
+	for key in data:
+		var state := String(data[key])
+		if known.has(String(key)) and (state == "active" or state == "done"):
+			states[String(key)] = state
+	changed.emit()

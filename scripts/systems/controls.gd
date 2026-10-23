@@ -13,6 +13,7 @@ const MOVE_DOWN := &"move_down"
 const INTERACT := &"interact"
 const INVENTORY := &"inventory"
 const ENTER := &"enter"   # entrar / salir de una casa estando en la puerta
+const LEADERBOARD := &"leaderboard"   # abrir el marcador
 # Acciones integradas de Godot (Enter / Espacio y Esc por defecto).
 const CONFIRM := &"ui_accept"
 const CANCEL := &"ui_cancel"
@@ -25,6 +26,7 @@ const _DEFAULT_KEYS := {
 	&"interact": [KEY_E],
 	&"inventory": [KEY_I],
 	&"enter": [KEY_F],
+	&"leaderboard": [KEY_L],
 }
 
 
@@ -70,7 +72,7 @@ static func hud_hint() -> String:
 
 
 static func title_hint() -> String:
-	return "%s  COMENZAR     ·     ESC  MENÚ DURANTE EL JUEGO" % key_label(CONFIRM).to_upper()
+	return "%s  JUGAR     ·     ESC  MENÚ DURANTE EL JUEGO" % key_label(CONFIRM).to_upper()
 
 
 ## Filas de la ventana de controles: {"action": texto, "keys": [teclas]}.
@@ -80,6 +82,7 @@ static func help_rows() -> Array:
 		{"action": "Hablar con un aldeano / cosechar un cultivo", "keys": [key_label(INTERACT).to_upper()]},
 		{"action": "Entrar o salir de una casa (en la puerta)", "keys": [key_label(ENTER).to_upper()]},
 		{"action": "Abrir la mochila", "keys": [key_label(INVENTORY).to_upper()]},
-		{"action": "Menú de pausa / cerrar ventanas", "keys": ["ESC"]},
-		{"action": "Comenzar desde la pantalla de título", "keys": ["ENTER", "ESPACIO"]},
+		{"action": "Abrir el marcador", "keys": [key_label(LEADERBOARD).to_upper()]},
+		{"action": "Menú de pausa (guardar, cargar, ajustes) / cerrar ventanas", "keys": ["ESC"]},
+		{"action": "Comenzar o continuar desde la pantalla de título", "keys": ["ENTER", "ESPACIO"]},
 	]

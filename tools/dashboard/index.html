@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Willowmere · Panel de desarrollo</title>
+<style>
+:root {
+  --bg: #0b1522; --bg2: #101e30; --card: #142336; --deep: #0e1b2b; --line: #2a4058;
+  --text: #f1ead2; --muted: #a5b3b1; --faint: #71838b;
+  --accent: #f2b35f; --mint: #77d3b0; --red: #f58d78; --amber: #f2b35f; --blue: #6fb7e9; --violet: #b49ce8;
+  --ok: #77d3b0;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 90px; background: var(--bg); min-height: 100%; }
+body { margin: 0; background: radial-gradient(1200px 600px at 10% -10%, #17304a 0%, var(--bg) 60%) fixed; color: var(--text);
+  font: 14px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+header { position: sticky; top: 0; z-index: 20; background: rgba(11,21,34,.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line); padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.brand h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+.brand small { color: var(--accent); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; }
+nav { display: flex; gap: 6px; }
+nav button, .btn { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 9px; padding: 8px 16px;
+  font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+nav button:hover, .btn:hover { color: var(--text); border-color: #4a6c85; background: #17293d; }
+nav button.active { background: #337c75; border-color: #4d9e91; color: #fff; }
+.controls { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.controls label { color: var(--faint); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+select { background: var(--deep); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; }
+input[type=checkbox] { accent-color: #4d9e91; width: 15px; height: 15px; }
+.btn.primary { background: #337c75; border-color: #4d9e91; color: #fff; }
+.status { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); }
+.status.on { color: var(--ok); } .status.on .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); animation: pulse 2s infinite; }
+.status.off { color: var(--red); } .status.off .dot { background: var(--red); }
+@keyframes pulse { 50% { opacity: .35; } }
+main { max-width: 1500px; margin: 0 auto; padding: 22px 24px 60px; }
+.tab { display: none; } .tab.active { display: block; }
+.grid { display: grid; gap: 16px; }
+.cards4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.kpis { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 18px; }
+.cols2 { grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); }
+.cols-heat { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); }
+.cols3 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.card { background: linear-gradient(180deg, var(--card), #122033); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+.card h2 { margin: 0 0 4px; font-size: 14px; letter-spacing: .3px; }
+.card .sub { color: var(--faint); font-size: 12px; margin: 0 0 12px; }
+.kpi .label { color: var(--faint); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.kpi .value { font-size: 28px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+.kpi .note { color: var(--muted); font-size: 12px; }
+.kpi.warn { border-color: #8a6a30; } .kpi.warn .value { color: var(--amber); }
+.kpi.bad { border-color: #8a4a40; } .kpi.bad .value { color: var(--red); }
+.kpi.good .value { color: var(--mint); }
+.kpi .flag { float: right; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; letter-spacing: .6px; }
+.kpi.warn .flag { background: #4a3a1a; color: var(--amber); } .kpi.bad .flag { background: #4a2420; color: var(--red); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; color: var(--faint); font-size: 11px; letter-spacing: .8px; text-transform: uppercase; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid #1c3047; vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+.empty { color: var(--faint); text-align: center; padding: 26px 8px; font-size: 13px; }
+.bar { height: 8px; border-radius: 99px; background: #0b1624; overflow: hidden; min-width: 70px; }
+.bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #337c75, var(--mint)); }
+.bar.amber > i { background: linear-gradient(90deg, #8a6a30, var(--amber)); }
+.bar.red > i { background: linear-gradient(90deg, #8a4a40, var(--red)); }
+.bar.blue > i { background: linear-gradient(90deg, #2f6a96, var(--blue)); }
+.hbar { display: grid; grid-template-columns: minmax(110px, 190px) 1fr auto; gap: 10px; align-items: center; padding: 5px 0; font-size: 13px; }
+.hbar .name { color: var(--text); overflow-wrap: anywhere; line-height: 1.25; }
+.hbar .val { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.funnel-row { display: grid; grid-template-columns: 150px 1fr 150px; gap: 12px; align-items: center; padding: 6px 0; }
+.funnel-row .bar { height: 22px; border-radius: 6px; } .funnel-row .bar > i { border-radius: 6px; }
+.funnel-row .lost { color: var(--red); font-size: 12px; text-align: right; }
+.chip { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; border: 1px solid; white-space: nowrap; }
+.t-green { color: var(--mint); border-color: #2f6a5a; background: #123329; } .t-amber { color: var(--amber); border-color: #7a5d2a; background: #33290f; }
+.t-blue { color: var(--blue); border-color: #2f5f85; background: #10293c; } .t-violet { color: var(--violet); border-color: #54457f; background: #1f1a38; }
+.t-gray { color: var(--muted); border-color: #3b4f60; background: #172636; } .t-red { color: var(--red); border-color: #7a3d34; background: #35191a; }
+a.player, .player-link { color: var(--text); cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--faint); }
+a.player:hover { color: var(--mint); }
+.medal { font-size: 16px; display: inline-block; width: 26px; text-align: center; }
+.muted { color: var(--muted); } .faint { color: var(--faint); }
+.heat-wrap { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #0b1624; line-height: 0; }
+.heat-wrap img, .heat-wrap canvas { width: 100%; display: block; }
+.heat-wrap canvas { position: absolute; inset: 0; cursor: crosshair; }
+.tip { position: fixed; pointer-events: none; z-index: 50; background: #0b1624ee; border: 1px solid var(--mint); color: var(--text);
+  padding: 6px 10px; border-radius: 8px; font-size: 12px; line-height: 1.4; display: none; white-space: nowrap; }
+.heat-tools { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button { background: transparent; border: 0; color: var(--muted); padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.seg button.active { background: #337c75; color: #fff; }
+.legend { height: 10px; border-radius: 99px; background: linear-gradient(90deg, #0000ff22, #00c8ff77, #3cdc3c99, #ffdc00cc, #ff2800); width: 160px; }
+input[type=range] { accent-color: #4d9e91; }
+.err { background: #35191a; border: 1px solid #7a3d34; color: var(--red); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; display: none; }
+.hint { color: var(--faint); font-size: 12px; margin-top: 10px; }
+svg text { fill: var(--faint); font-size: 10px; }
+@media (max-width: 1100px) { .cols-heat { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .funnel-row { grid-template-columns: 1fr; } .funnel-row .lost { text-align: left; } .controls { margin-left: 0; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><small>Willowmere</small><h1>Panel de desarrollo</h1></div>
+  <nav>
+    <button id="tab-jugadores" class="active" data-tab="jugadores">Jugadores</button>
+    <button id="tab-analitica" data-tab="analitica">Analítica</button>
+  </nav>
+  <div class="controls">
+    <label>Periodo
+      <select id="periodo">
+        <option value="24h">Últimas 24 h</option><option value="7d">Últimos 7 días</option>
+        <option value="30d">Últimos 30 días</option><option value="all" selected>Todo</option>
+      </select></label>
+    <label>Jugador
+      <select id="jugador"><option value="">Todos</option></select></label>
+    <label><input type="checkbox" id="auto" checked> Auto-actualizar</label>
+    <button class="btn" id="refresh">Actualizar</button>
+    <a class="btn" id="csv" href="#" title="Descarga la telemetría cruda con el periodo y el jugador elegidos">CSV</a>
+    <span class="status off" id="status"><span class="dot"></span><span id="status-text">Sin conexión</span></span>
+  </div>
+</header>
+
+<main>
+  <div class="err" id="error"></div>
+
+  <!-- ===================== JUGADORES ===================== -->
+  <section class="tab active" id="jugadores">
+    <div class="grid cards4" id="p-cards" style="margin-bottom:18px"></div>
+    <div class="grid" style="grid-template-columns: minmax(0,1.7fr) minmax(320px,1fr); gap:16px" id="p-main">
+      <div class="card">
+        <h2>Marcador</h2><p class="sub">Haz clic en un nombre para filtrar todo el panel por ese jugador.</p>
+        <div class="scroll" id="p-board"></div>
+      </div>
+      <div class="card">
+        <h2>Bitácora en tiempo real</h2><p class="sub">Las últimas 40 acciones.</p>
+        <div class="scroll" id="p-log" style="max-height:620px; overflow-y:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ANALÍTICA ===================== -->
+  <section class="tab" id="analitica">
+    <div class="grid kpis" id="a-kpis"></div>
+
+    <div class="grid cols-heat" style="margin-bottom:16px">
+      <div class="card"><h2>Embudo de progreso</h2><p class="sub">% de sesiones que llegan a cada hito y cuánto se pierde entre uno y otro.</p><div id="a-funnel"></div></div>
+      <div class="card"><h2>Mapa de calor del pueblo</h2><p class="sub">Dónde pasan el tiempo y dónde cosechan (exterior). Pasa el ratón por una celda para ver su valor.</p><div id="a-heat"></div></div>
+    </div>
+
+    <div class="grid cols3" style="margin-bottom:16px">
+      <div class="card"><h2>Sesiones por día</h2><p class="sub">Barras: sesiones · línea: minutos activos.</p><div id="a-days"></div></div>
+      <div class="card"><h2>Hora del día</h2><p class="sub">A qué horas se empieza a jugar.</p><div id="a-hours"></div></div>
+      <div class="card"><h2>Dónde abandonan</h2><p class="sub" id="a-abandon-sub">La última acción en cada sesión terminada.</p><div id="a-abandon"></div></div>
+    </div>
+
+    <div class="grid cols2" style="margin-bottom:16px">
+      <div class="card"><h2>Encargos</h2><p class="sub">Aceptados, completados, tasa y tiempo medio de juego activo hasta completarlos.</p><div class="scroll" id="a-quests"></div></div>
+      <div class="card"><h2>Aldeanos e IA</h2><p class="sub">Charlas, mensajes, duración, latencia y errores por aldeano.</p><div class="scroll" id="a-npcs"></div>
+        <h2 style="margin-top:16px">Errores de IA más frecuentes</h2><div id="a-aierrors"></div></div>
+    </div>
+
+    <div class="grid cols3" style="margin-bottom:16px">
+      <div class="card"><h2>Cosechas por cultivo</h2><p class="sub">&nbsp;</p><div id="a-crops"></div></div>
+      <div class="card"><h2>Tiempo por lugar</h2><p class="sub">Tiempo de juego activo y número de visitas.</p><div id="a-places"></div></div>
+      <div class="card"><h2>Uso de menús</h2><p class="sub" id="a-menus-sub">Veces que se abre cada menú.</p><div id="a-menus"></div></div>
+    </div>
+
+    <div class="grid cols3" style="margin-bottom:16px">
+      <div class="card"><h2>Monedas por origen</h2><p class="sub">Puntos de monedas del marcador, según su fuente.</p><div id="a-coins"></div></div>
+      <div class="card"><h2>FPS por lugar</h2><p class="sub">Dónde va peor el rendimiento (de menor a mayor).</p><div class="scroll" id="a-fps"></div></div>
+      <div class="card"><h2>Versión y sistema</h2><p class="sub">Qué builds se están usando.</p><div class="scroll" id="a-builds"></div></div>
+      <div class="card"><h2>Game feel</h2><p class="sub">Interacciones que el juego "salvó" gracias al input buffer y al coyote time.</p><div id="a-feel"></div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px"><h2>Sesiones recientes</h2><p class="sub">Las últimas 15.</p><div class="scroll" id="a-sessions"></div></div>
+    <div class="grid cols2">
+      <div class="card"><h2>Eventos recientes</h2><p class="sub">Los últimos 40 de telemetría (sin muestras de FPS ni posición).</p><div class="scroll" id="a-events" style="max-height:560px; overflow-y:auto"></div></div>
+      <div class="card"><h2>Resumen por tipo de evento</h2><p class="sub">Los 40 más frecuentes.</p><div id="a-summary" style="max-height:560px; overflow-y:auto"></div></div>
+    </div>
+  </section>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const state = { tab: "jugadores", periodo: "all", jugador: "", auto: true, timer: null, layer: "movimiento", opacity: 0.8, names: [], lastAnalytics: null, loading: false };
+
+/* ---------- utilidades ---------- */
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = (v) => (v == null ? "—" : Math.round(v).toLocaleString("es"));
+const dec = (v, d = 1) => (v == null ? "—" : Number(v).toLocaleString("es", { minimumFractionDigits: d, maximumFractionDigits: d }));
+const pct = (v, d = 0) => (v == null ? "—" : dec(v, d) + " %");
+function dur(sec) {
+  if (sec == null) return "—";
+  sec = Math.max(0, Math.round(sec));
+  if (sec >= 3600) return Math.floor(sec / 3600) + " h " + String(Math.floor((sec % 3600) / 60)).padStart(2, "0") + " min";
+  if (sec >= 60) return Math.floor(sec / 60) + " min " + String(sec % 60).padStart(2, "0") + " s";
+  return sec + " s";
+}
+function ago(sec) {
+  if (sec == null) return "—";
+  if (sec < 10) return "ahora mismo";
+  if (sec < 60) return "hace " + sec + " s";
+  if (sec < 3600) return "hace " + Math.floor(sec / 60) + " min";
+  if (sec < 86400) return "hace " + Math.floor(sec / 3600) + " h";
+  return "hace " + Math.floor(sec / 86400) + " d";
+}
+const empty = (text = "Sin datos todavía.") => `<div class="empty">${esc(text)}</div>`;
+const maxOf = (rows, key) => rows.reduce((m, r) => Math.max(m, Number(r[key]) || 0), 0) || 1;
+function hbars(rows, labelKey, valueKey, fmt = num, tone = "") {
+  if (!rows.length) return empty();
+  const max = maxOf(rows, valueKey);
+  return rows.map((r) => `<div class="hbar"><span class="name" title="${esc(r[labelKey])}">${esc(r[labelKey])}</span>
+    <div class="bar ${tone}"><i style="width:${(100 * (Number(r[valueKey]) || 0) / max).toFixed(1)}%"></i></div>
+    <span class="val">${esc(fmt(r[valueKey]))}</span></div>`).join("");
+}
+function table(head, rows, aligns = []) {
+  if (!rows.length) return empty();
+  return `<table><thead><tr>${head.map((h, i) => `<th class="${aligns[i] || ""}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${
+    rows.map((r) => `<tr>${r.map((c, i) => `<td class="${aligns[i] || ""}">${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function chip(text, tone) { return `<span class="chip t-${tone}">${esc(text)}</span>`; }
+const TYPE_TONES = { "Coleccionable": "green", "Cosecha": "green", "Misión Completada": "amber", "Monedas": "amber", "Nuevo Jugador": "blue",
+  "Inicio de sesión": "gray", "Partida guardada": "violet", "Partida cargada": "violet" };
+const CAT_TONES = { sesion: "gray", menu: "blue", juego: "green", ia: "violet", economia: "amber", partida: "violet", lugar: "gray", movimiento: "gray", rendimiento: "gray" };
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+/* ---------- datos ---------- */
+function query() {
+  return "periodo=" + encodeURIComponent(state.periodo) + "&jugador=" + encodeURIComponent(state.jugador);
+}
+function setStatus(ok, text) {
+  $("status").className = "status " + (ok ? "on" : "off");
+  $("status-text").textContent = text || (ok ? "En vivo" : "Sin conexión");
+}
+async function getJSON(url) {
+  const ctl = new AbortController();
+  const timeout = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const res = await fetch(url, { signal: ctl.signal, cache: "no-store" });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || "HTTP " + res.status);
+    return data;
+  } finally { clearTimeout(timeout); }
+}
+async function load() {
+  if (state.loading) return;
+  state.loading = true;
+  try {
+    if (state.tab === "jugadores") renderPlayers(await getJSON("/api/dashboard?" + query()));
+    else renderAnalytics(await getJSON("/api/analytics?" + query()));
+    $("error").style.display = "none";
+    setStatus(true);
+  } catch (e) {
+    setStatus(false);
+    $("error").textContent = "No se pudo cargar: " + e.message + ". ¿Está encendido tools/servidor_sqlite.py?";
+    $("error").style.display = "block";
+  } finally { state.loading = false; }
+}
+function schedule() {
+  clearTimeout(state.timer);
+  if (!state.auto) return;
+  state.timer = setTimeout(async () => {
+    if (!document.hidden) await load();   // con la pestaña oculta no se consulta
+    schedule();
+  }, state.tab === "jugadores" ? 2500 : 10000);
+}
+function refreshNow() { load().then(schedule); }
+function setPlayer(name) {
+  state.jugador = name || "";
+  $("jugador").value = state.jugador;
+  refreshNow();
+}
+function fillPlayers(names) {
+  const key = names.join("|");
+  if (key === state.names.join("|")) return;
+  state.names = names;
+  const current = state.jugador;
+  $("jugador").innerHTML = `<option value="">Todos</option>` + names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  $("jugador").value = names.includes(current) ? current : "";
+}
+
+/* ---------- pestaña Jugadores ---------- */
+function renderPlayers(d) {
+  fillPlayers(d.nombres || []);
+  const r = d.resumen;
+  const card = (label, value, note) => `<div class="card kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="note">${note}</div></div>`;
+  $("p-cards").innerHTML =
+    card("Jugadores", num(r.jugadores), "con actividad en el periodo") +
+    card("Mejor score", num(r.mejor_score), r.mejor_jugador ? "de " + esc(r.mejor_jugador) : "—") +
+    card("Tiempo total jugado", dur(r.tiempo_total), "suma de todos los jugadores") +
+    card("Items recogidos", num(r.items), num(r.misiones) + " encargos completados");
+
+  const rows = d.leaderboard;
+  const top = rows.reduce((m, x) => Math.max(m, x.score), 1);
+  $("p-board").innerHTML = table(["#", "Jugador", "Score", "Monedas", "Items", "Misiones", "Tiempo", "Última actividad"],
+    rows.map((x, i) => [
+      i < 3 ? `<span class="medal">${MEDALS[i]}</span>` : `<span class="faint">${i + 1}</span>`,
+      `<a class="player" data-player="${esc(x.jugador)}">${esc(x.jugador)}</a>`,
+      `<div style="min-width:130px"><div style="font-variant-numeric:tabular-nums">${num(x.score)}</div><div class="bar" style="margin-top:3px"><i style="width:${(100 * x.score / top).toFixed(1)}%"></i></div></div>`,
+      num(x.monedas), num(x.coleccionables), num(x.misiones), dur(x.tiempo_segundos),
+      `<span class="${x.hace_seg != null && x.hace_seg < 60 ? "" : "faint"}">${ago(x.hace_seg)}</span>`,
+    ]), ["", "", "", "num", "num", "num", "num", ""]);
+  $("p-board").querySelectorAll("a.player").forEach((a) => a.addEventListener("click", () => setPlayer(a.dataset.player)));
+
+  $("p-log").innerHTML = d.eventos.length ? table(["Hora", "Jugador", "Tipo", "Detalle"],
+    d.eventos.map((e) => [`<span class="faint">${esc((e.fecha_hora || "").slice(5, 16))}</span>`, esc(e.jugador),
+      chip(e.tipo_evento, TYPE_TONES[e.tipo_evento] || "gray"), `<span class="muted">${esc(e.detalle)}</span>`])) : empty("Aún no hay acciones registradas.");
+}
+
+/* ---------- pestaña Analítica ---------- */
+function kpi(label, value, note, tone = "", flag = "") {
+  return `<div class="card kpi ${tone}"><div class="label">${label}${flag ? `<span class="flag">${flag}</span>` : ""}</div><div class="value">${value}</div><div class="note">${note}</div></div>`;
+}
+function renderKpis(k) {
+  const tone = (cond, t) => (cond ? t : "");
+  const playTone = k.pct_jugar != null && k.pct_jugar < 70 ? "warn" : "";
+  const fpsTone = k.fps_medio != null && k.fps_medio < 45 ? "bad" : "";
+  const latTone = k.ia_latencia_media != null && k.ia_latencia_media > 5000 ? "warn" : "";
+  const errTone = k.ia_pct_errores == null ? "" : k.ia_pct_errores > 10 ? "bad" : k.ia_pct_errores > 3 ? "warn" : "";
+  const flagFor = (t) => (t === "bad" ? "CRÍTICO" : t === "warn" ? "ATENCIÓN" : "");
+  $("a-kpis").innerHTML =
+    kpi("1 · Sesiones", num(k.sesiones), `<b style="color:var(--mint)">${num(k.en_curso)}</b> en curso ahora`) +
+    kpi("2 · Jugadores únicos", num(k.jugadores_unicos), `${num(k.jugadores_recurrentes)} han vuelto en otro día`) +
+    kpi("3 · Duración media", dur(k.duracion_media), "mediana " + dur(k.duracion_mediana)) +
+    kpi("4 · Tiempo activo medio", dur(k.activo_medio), "sin contar título ni pausa") +
+    kpi("5 · Pulsan «Jugar»", pct(k.pct_jugar), "tardan de media " + dur(k.tiempo_hasta_jugar), playTone, flagFor(playTone)) +
+    kpi("6 · Eventos por sesión", dec(k.eventos_por_sesion), num(k.eventos_total) + " eventos en total (sin muestras)") +
+    kpi("7 · FPS medio", dec(k.fps_medio), "percentil 5: " + dec(k.fps_p5), fpsTone, flagFor(fpsTone)) +
+    kpi("8 · Latencia de la IA", k.ia_latencia_media == null ? "—" : dec(k.ia_latencia_media / 1000, 2) + " s", "p95: " + (k.ia_latencia_p95 == null ? "—" : dec(k.ia_latencia_p95 / 1000, 2) + " s"), latTone, flagFor(latTone)) +
+    kpi("9 · Errores de la IA", pct(k.ia_pct_errores, 1), "de las respuestas pedidas", errTone, flagFor(errTone)) +
+    kpi("10 · Sesiones con clave API", pct(k.pct_con_clave), num(k.intentos_sin_clave) + " intentos de charla sin clave");
+}
+function renderFunnel(rows) {
+  $("a-funnel").innerHTML = rows.length && rows[0].sesiones ? rows.map((f, i) => `<div class="funnel-row">
+    <div>${i + 1}. ${esc(f.paso)}</div>
+    <div class="bar ${f.pct < 40 && i > 0 ? "amber" : ""}"><i style="width:${f.pct.toFixed(1)}%"></i></div>
+    <div><b>${dec(f.pct, 0)} %</b> <span class="faint">· ${num(f.sesiones)} sesiones</span>
+    ${i > 0 && f.perdidas ? `<div class="lost">−${num(f.perdidas)} (${dec(f.pct_perdido, 0)} %) vs. el paso anterior</div>` : ""}</div></div>`).join("") : empty("Sin sesiones en este periodo.");
+}
+function renderDays(rows) {
+  if (!rows.length || !rows.some((r) => r.sesiones)) { $("a-days").innerHTML = empty("Sin sesiones en este periodo."); return; }
+  const W = 560, H = 230, L = 34, R = 34, T = 14, B = 34, iw = W - L - R, ih = H - T - B;
+  const maxS = Math.max(1, ...rows.map((r) => r.sesiones)), maxM = Math.max(1, ...rows.map((r) => r.minutos));
+  const step = iw / rows.length, bw = Math.max(3, step * 0.62);
+  let bars = "", pts = [], labels = "";
+  rows.forEach((r, i) => {
+    const x = L + i * step + (step - bw) / 2, h = (ih * r.sesiones) / maxS;
+    bars += `<rect x="${x.toFixed(1)}" y="${(T + ih - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="#4d9e91"><title>${esc(r.dia)}: ${r.sesiones} sesiones · ${dec(r.minutos, 0)} min activos</title></rect>`;
+    pts.push([L + i * step + step / 2, T + ih - (ih * r.minutos) / maxM]);
+    if (rows.length <= 10 || i % Math.ceil(rows.length / 8) === 0) labels += `<text x="${(L + i * step + step / 2).toFixed(1)}" y="${H - 14}" text-anchor="middle">${esc(r.dia.slice(8, 10) + "/" + r.dia.slice(5, 7))}</text>`;
+  });
+  const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const dots = pts.map((p) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="#f2b35f"/>`).join("");
+  $("a-days").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sesiones por día">
+    <line x1="${L}" y1="${T + ih}" x2="${W - R}" y2="${T + ih}" stroke="#2a4058"/>
+    <text x="${L - 6}" y="${T + 8}" text-anchor="end">${maxS}</text><text x="${L - 6}" y="${T + ih}" text-anchor="end">0</text>
+    <text x="${W - R + 6}" y="${T + 8}">${num(maxM)}m</text>
+    ${bars}<path d="${line}" fill="none" stroke="#f2b35f" stroke-width="2"/>${dots}${labels}</svg>
+    <div class="hint"><span style="color:#4d9e91">■</span> sesiones &nbsp; <span style="color:#f2b35f">●</span> minutos activos</div>`;
+}
+function renderHours(hours) {
+  if (!hours.some((h) => h)) { $("a-hours").innerHTML = empty("Sin sesiones en este periodo."); return; }
+  const W = 560, H = 230, L = 24, R = 8, T = 14, B = 34, iw = W - L - R, ih = H - T - B, max = Math.max(...hours);
+  const step = iw / 24, bw = step * 0.72;
+  const peak = hours.indexOf(max);
+  let out = "";
+  hours.forEach((n, i) => {
+    const h = (ih * n) / max, x = L + i * step + (step - bw) / 2;
+    out += `<rect x="${x.toFixed(1)}" y="${(T + ih - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${i === peak ? "#f2b35f" : "#6fb7e9"}"><title>${String(i).padStart(2, "0")}:00 — ${n} sesiones</title></rect>`;
+    if (i % 3 === 0) out += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 14}" text-anchor="middle">${String(i).padStart(2, "0")}h</text>`;
+  });
+  $("a-hours").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sesiones por hora"><line x1="${L}" y1="${T + ih}" x2="${W - R}" y2="${T + ih}" stroke="#2a4058"/>
+    <text x="${L - 4}" y="${T + 8}" text-anchor="end">${max}</text>${out}</svg>
+    <div class="hint">Hora pico: <b style="color:var(--accent)">${String(peak).padStart(2, "0")}:00</b> (${max} sesiones)</div>`;
+}
+
+/* --- mapa de calor --- */
+const HEAT_STOPS = [[0, [0, 80, 255, 0]], [0.25, [0, 200, 255, 115]], [0.5, [60, 220, 60, 150]], [0.75, [255, 220, 0, 190]], [1, [255, 40, 0, 230]]];
+function heatColor(t) {
+  for (let i = 1; i < HEAT_STOPS.length; i++) {
+    if (t <= HEAT_STOPS[i][0]) {
+      const [t0, c0] = HEAT_STOPS[i - 1], [t1, c1] = HEAT_STOPS[i], f = (t - t0) / (t1 - t0);
+      const c = c0.map((v, k) => v + (c1[k] - v) * f);
+      return `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${(c[3] / 255 * state.opacity).toFixed(3)})`;
+    }
+  }
+  return "rgba(255,40,0,.9)";
+}
+let heatCells = new Map(), heatMeta = null;
+function renderHeat(m) {
+  heatMeta = m;
+  const any = m.movimiento.length || m.cosechas.length;
+  $("a-heat").innerHTML = `
+    <div class="heat-tools">
+      <div class="seg"><button data-layer="movimiento" class="${state.layer === "movimiento" ? "active" : ""}">Movimiento</button><button data-layer="cosechas" class="${state.layer === "cosechas" ? "active" : ""}">Cosechas</button></div>
+      <label class="faint" style="display:flex;gap:8px;align-items:center">Opacidad <input type="range" id="heat-op" min="20" max="100" value="${Math.round(state.opacity * 100)}"></label>
+      <span class="faint" style="display:flex;gap:8px;align-items:center">menos <span class="legend"></span> más</span>
+    </div>
+    <div class="heat-wrap" id="heat-wrap"><img src="/mapa.png" alt="Mapa del pueblo" draggable="false"><canvas id="heat-canvas" width="1136" height="608"></canvas></div>
+    <div class="hint">${any ? "" : "Aún no hay posiciones registradas: juega con el servidor encendido. "}Movimiento = tiempo que pasan los jugadores en cada celda de ${m.celda} px · Cosechas = cultivos recogidos.</div>`;
+  $("a-heat").querySelectorAll("[data-layer]").forEach((b) => b.addEventListener("click", () => { state.layer = b.dataset.layer; renderHeat(heatMeta); }));
+  $("heat-op").addEventListener("input", (e) => { state.opacity = e.target.value / 100; drawHeat(); });
+  const canvas = $("heat-canvas");
+  canvas.addEventListener("mousemove", heatHover);
+  canvas.addEventListener("mouseleave", () => { $("tip").style.display = "none"; drawHeat(); });
+  drawHeat();
+}
+function layerData() { return heatMeta[state.layer] || []; }
+function drawHeat(hover) {
+  const canvas = $("heat-canvas"); if (!canvas || !heatMeta) return;
+  const ctx = canvas.getContext("2d"), data = layerData();
+  const px = canvas.width / heatMeta.ancho * heatMeta.celda;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  heatCells = new Map();
+  const max = data.reduce((m, c) => Math.max(m, c[2]), 0) || 1;
+  data.forEach(([gx, gy, v]) => {
+    heatCells.set(gx + "," + gy, v);
+    ctx.fillStyle = heatColor(Math.sqrt(v / max));
+    ctx.fillRect(gx * px, gy * px, px, px);
+  });
+  if (hover) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(hover[0] * px + 1, hover[1] * px + 1, px - 2, px - 2); }
+}
+function heatHover(ev) {
+  const canvas = ev.target, rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width, px = canvas.width / heatMeta.ancho * heatMeta.celda;
+  const gx = Math.floor((ev.clientX - rect.left) * sx / px), gy = Math.floor((ev.clientY - rect.top) * sx / px);
+  const v = heatCells.get(gx + "," + gy) || 0, tip = $("tip");
+  const text = state.layer === "movimiento" ? dur(v) + " de presencia" : v + (v === 1 ? " cosecha" : " cosechas");
+  tip.innerHTML = `<b>Celda ${gx}, ${gy}</b> <span class="faint">(${gx * heatMeta.celda}–${(gx + 1) * heatMeta.celda} px, ${gy * heatMeta.celda}–${(gy + 1) * heatMeta.celda} px)</span><br>${text}`;
+  tip.style.display = "block";
+  tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + "px";
+  tip.style.top = (ev.clientY + 14) + "px";
+  drawHeat([gx, gy]);
+}
+
+function renderAnalytics(d) {
+  state.lastAnalytics = d;
+  renderKpis(d.kpis);
+  renderFunnel(d.embudo);
+  renderHeat(d.mapa);
+  renderDays(d.dias);
+  renderHours(d.horas);
+  $("a-abandon-sub").textContent = `La última acción en cada una de las ${num(d.abandono_total)} sesiones terminadas.`;
+  $("a-abandon").innerHTML = hbars(d.abandono, "accion", "pct", (v) => dec(v, 0) + " %", "amber");
+
+  $("a-quests").innerHTML = table(["Encargo", "Aceptados", "Completados", "Tasa", "Tiempo medio"], d.encargos.map((q) => [
+    esc(q.titulo), num(q.aceptados), num(q.completados),
+    q.tasa == null ? "—" : `<span style="color:${q.tasa < 40 ? "var(--red)" : q.tasa < 70 ? "var(--amber)" : "var(--mint)"}">${dec(q.tasa, 0)} %</span>`,
+    dur(q.tiempo_medio)]), ["", "num", "num", "num", "num"]);
+  $("a-npcs").innerHTML = table(["Aldeano", "Charlas", "Mensajes", "Duración", "Latencia", "Errores"], d.aldeanos.map((n) => [
+    esc(n.aldeano), num(n.charlas), num(n.mensajes), dur(n.duracion_media),
+    n.latencia_media == null ? "—" : dec(n.latencia_media / 1000, 2) + " s",
+    n.errores ? `<span style="color:var(--red)">${num(n.errores)}</span>` : "0"]), ["", "num", "num", "num", "num", "num"]);
+  $("a-aierrors").innerHTML = d.errores_ia.length ? hbars(d.errores_ia.map((e) => ({ t: e.detalle, n: e.n })), "t", "n", num, "red") : empty("Sin errores de IA. 🎉");
+
+  $("a-crops").innerHTML = hbars(d.cosechas, "cultivo", "n");
+  $("a-places").innerHTML = d.lugares.length ? d.lugares.map((p) => {
+    const max = maxOf(d.lugares, "segundos");
+    return `<div class="hbar"><span class="name">${esc(p.lugar)}</span><div class="bar blue"><i style="width:${(100 * p.segundos / max).toFixed(1)}%"></i></div><span class="val">${dur(p.segundos)} · ${num(p.visitas)} visitas</span></div>`;
+  }).join("") : empty();
+  $("a-menus-sub").textContent = `Veces que se abre cada menú. Partidas: ${num(d.partidas.guardadas)} guardadas · ${num(d.partidas.cargadas)} cargadas.`;
+  $("a-menus").innerHTML = d.menus.length ? d.menus.map((m) => {
+    const max = maxOf(d.menus, "n");
+    return `<div class="hbar"><span class="name">${esc(m.menu)}</span><div class="bar"><i style="width:${(100 * m.n / max).toFixed(1)}%"></i></div><span class="val">${num(m.n)} · ${num(m.sesiones)} ses.</span></div>`;
+  }).join("") : empty();
+  $("a-coins").innerHTML = hbars(d.monedas, "origen", "monedas", num, "amber");
+  $("a-fps").innerHTML = table(["Lugar", "FPS medio", "p5", "Muestras"], d.fps_lugares.map((f) => [
+    esc(f.lugar), `<span style="color:${f.fps_medio < 45 ? "var(--red)" : "inherit"}">${dec(f.fps_medio)}</span>`, dec(f.fps_p5), num(f.muestras)]), ["", "num", "num", "num"]);
+  const f = d.feel || {};
+  $("a-feel").innerHTML = f.interacciones ? hbars([
+      { n: "Input buffer", v: f.buffer }, { n: "Coyote time", v: f.coyote },
+      { n: "Interacciones totales", v: f.interacciones }], "n", "v", num, "blue") +
+    `<div class="hint"><b style="color:var(--mint)">${pct(f.pct_salvadas, 1)}</b> de las interacciones se salvaron.
+      Espera media del buffer: ${f.buffer_espera_media_ms == null ? "—" : Math.round(f.buffer_espera_media_ms) + " ms"}.</div>` : empty("Aún no hay interacciones registradas.");
+  $("a-builds").innerHTML = table(["Versión", "Sistema", "Sesiones", "Duración media"], d.builds.map((b) => [esc(b.version), esc(b.os), num(b.sesiones), dur(b.duracion_media)]), ["", "", "num", "num"]);
+
+  $("a-sessions").innerHTML = table(["Inicio", "Jugador", "Versión", "Sistema", "Duración", "Tiempo activo", "Clave API", "Estado"], d.sesiones_recientes.map((s) => [
+    esc(s.inicio), `<a class="player" data-player="${esc(s.jugador)}">${esc(s.jugador)}</a>`, esc(s.version), esc(s.os), dur(s.duracion), dur(s.activo),
+    s.api_key ? chip("sí", "green") : chip("no", "gray"), s.estado === "en curso" ? chip("en curso", "green") : chip("terminada", "gray")]));
+  $("a-sessions").querySelectorAll("a.player").forEach((a) => a.addEventListener("click", () => setPlayer(a.dataset.player)));
+  $("a-events").innerHTML = table(["Hora", "Jugador", "Evento", "Lugar", "Valor", "Detalle"], d.eventos_recientes.map((e) => [
+    `<span class="faint">${esc(e.hora.slice(5))}</span>`, esc(e.jugador), chip(e.evento, CAT_TONES[e.categoria] || "gray"), esc(e.lugar),
+    e.valor ? dec(e.valor, e.valor % 1 ? 1 : 0) : "", `<span class="muted">${esc(e.detalle)}</span>`]), ["", "", "", "", "num", ""]);
+  const maxType = d.resumen_eventos.reduce((m, r) => Math.max(m, r.n), 1);
+  $("a-summary").innerHTML = d.resumen_eventos.length ? d.resumen_eventos.map((r) => `<div class="hbar" style="grid-template-columns:minmax(150px,240px) 1fr auto">
+    <span class="name" title="${esc(r.evento)}">${chip(r.categoria, CAT_TONES[r.categoria] || "gray")} ${esc(r.evento)}</span>
+    <div class="bar"><i style="width:${(100 * r.n / maxType).toFixed(1)}%"></i></div><span class="val">${num(r.n)}</span></div>`).join("") : empty();
+}
+
+/* ---------- controles ---------- */
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  state.tab = b.dataset.tab;
+  document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.id === state.tab));
+  history.replaceState(null, "", "#" + state.tab);
+  refreshNow();
+}));
+$("periodo").addEventListener("change", (e) => { state.periodo = e.target.value; refreshNow(); });
+$("jugador").addEventListener("change", (e) => { state.jugador = e.target.value; refreshNow(); });
+$("auto").addEventListener("change", (e) => { state.auto = e.target.checked; schedule(); });
+$("refresh").addEventListener("click", refreshNow);
+$("csv").addEventListener("click", (e) => { e.currentTarget.href = "/api/export.csv?" + query(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNow(); });
+if (location.hash === "#analitica") document.getElementById("tab-analitica").click(); else refreshNow();
+</script>
+</body>
+</html>

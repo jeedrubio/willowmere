@@ -120,3 +120,39 @@ func harvest(plot: CropPlot) -> bool:
 	if db:
 		db.registrar_accion("Cosecha", "Cosechó " + nombre_cultivo + " en el campo", 5)
 	return true
+
+
+## Identificador estable de un cultivo: su posición en el mundo (en décimas de píxel).
+func _plot_key(plot: CropPlot) -> String:
+	return "%d:%d" % [roundi(plot.sprite.position.x * 10.0), roundi(plot.sprite.position.y * 10.0)]
+
+
+## Estado de todos los cultivos para guardar la partida.
+func to_array() -> Array:
+	var saved: Array = []
+	for plot in plots:
+		saved.append({
+			"id": _plot_key(plot),
+			"stage": plot.stage,
+			"empty": plot.empty,
+			"timer": plot.timer,
+			"stage_length": plot.stage_length,
+		})
+	return saved
+
+
+func load_array(saved: Array) -> void:
+	var by_id := {}
+	for entry in saved:
+		if typeof(entry) == TYPE_DICTIONARY:
+			var item: Dictionary = entry
+			by_id[String(item.get("id", ""))] = item
+	for plot in plots:
+		var item: Dictionary = by_id.get(_plot_key(plot), {})
+		if item.is_empty():
+			continue
+		plot.empty = bool(item.get("empty", false))
+		plot.stage = clampi(int(item.get("stage", 0)), 0, plot.mature_stage())
+		plot.stage_length = maxf(0.5, float(item.get("stage_length", plot.stage_length)))
+		plot.timer = clampf(float(item.get("timer", plot.stage_length)), 0.0, 120.0)
+		_apply_visual(plot, false)
