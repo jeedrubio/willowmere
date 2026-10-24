@@ -1,0 +1,17 @@
+{
+  "escala": 2,
+  "normal": {
+    "izq": 26,
+    "arr": 18,
+    "der": 26,
+    "abj": 22,
+    "alto": 70
+  },
+  "pressed": {
+    "izq": 26,
+    "arr": 18,
+    "der": 26,
+    "abj": 16,
+    "alto": 66
+  }
+}

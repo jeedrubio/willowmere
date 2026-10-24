@@ -98,3 +98,32 @@ func clone() -> Inventory:
 	for i in slots.size():
 		copy.slots[i] = slots[i].duplicate()
 	return copy
+
+
+## Estado para guardar la partida (ver SaveGame).
+func to_dict() -> Dictionary:
+	var saved_slots: Array = []
+	for slot in slots:
+		saved_slots.append(slot.duplicate())
+	return {"coins": coins, "slots": saved_slots}
+
+
+## Restaura un estado guardado. Asigna las casillas directamente (sin add()) para no
+## volver a registrar los objetos como "obtenidos" en la base de datos.
+func load_dict(data: Dictionary) -> void:
+	coins = maxi(0, int(data.get("coins", 0)))
+	for i in SLOT_COUNT:
+		slots[i] = {}
+	var saved: Variant = data.get("slots", [])
+	if typeof(saved) == TYPE_ARRAY:
+		var saved_slots: Array = saved
+		for i in mini(saved_slots.size(), SLOT_COUNT):
+			var entry: Variant = saved_slots[i]
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var item: Dictionary = entry
+			var id := String(item.get("id", ""))
+			var amount := clampi(int(item.get("count", 0)), 0, MAX_STACK)
+			if ItemDb.exists(id) and amount > 0:
+				slots[i] = {"id": id, "count": amount}
+	changed.emit()
