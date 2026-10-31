@@ -34,6 +34,7 @@ const SHAKE_LEVELS := {"off": 0.0, "low": 0.5, "normal": 1.0}
 
 static var shake_level := "normal"
 static var effects_enabled := true
+static var mobile_controls_enabled := false
 static var sfx_volume := 0.8
 static var sfx_muted := false
 static var _loaded := false
@@ -51,6 +52,7 @@ static func load_settings() -> void:
 	var level := String(config.get_value("feel", "shake", "normal"))
 	shake_level = level if SHAKE_LEVELS.has(level) else "normal"
 	effects_enabled = bool(config.get_value("feel", "effects", true))
+	mobile_controls_enabled = bool(config.get_value("controls", "mobile", false))
 	sfx_volume = clampf(float(config.get_value("audio", "sfx_volume", 0.8)), 0.0, 1.0)
 	sfx_muted = bool(config.get_value("audio", "sfx_muted", false))
 
@@ -59,6 +61,7 @@ static func save_settings() -> void:
 	var config := ConfigFile.new()
 	config.set_value("feel", "shake", shake_level)
 	config.set_value("feel", "effects", effects_enabled)
+	config.set_value("controls", "mobile", mobile_controls_enabled)
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("audio", "sfx_muted", sfx_muted)
 	config.save(SETTINGS_PATH)

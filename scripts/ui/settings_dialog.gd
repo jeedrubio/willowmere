@@ -5,6 +5,7 @@ extends Control
 
 signal saved(key: String)
 signal closed
+signal mobile_controls_changed(enabled: bool)
 
 const TAB_AUDIO := "audio"
 const TAB_GAME := "juego"
@@ -182,6 +183,11 @@ func _build_game_page() -> VBoxContainer:
 		GameFeel.effects_enabled = on
 		GameFeel.save_settings())
 	card.add_child(UiKit.wrapped_label("Las chispas y los \"+1\" que aparecen al recoger cosas.", 13, UiKit.INK_SOFT, 500))
+	_check(card, "Mostrar controles móviles", GameFeel.mobile_controls_enabled, func(on: bool) -> void:
+		GameFeel.mobile_controls_enabled = on
+		GameFeel.save_settings()
+		mobile_controls_changed.emit(on))
+	card.add_child(UiKit.wrapped_label("Joystick y botones táctiles para jugar sin teclado.", 13, UiKit.INK_SOFT, 500))
 	return page
 
 
