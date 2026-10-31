@@ -35,8 +35,11 @@ const SKIN_DIR := "res://asset_pack/UI/skin/"
 ## Márgenes de corte (9-slice) de las texturas; deben coincidir con skin.json.
 const SKIN_NORMAL_MARGINS := Vector4(26, 18, 26, 22)
 const SKIN_PRESSED_MARGINS := Vector4(26, 18, 26, 16)
+const DEFAULT_MOBILE_UI_SCALE := 1.6
 
 static var _texture_cache := {}
+static var mobile_ui_enabled := false
+static var mobile_ui_scale_factor := 1.0
 
 
 # -----------------------------------------------------------------------------
@@ -52,6 +55,87 @@ static func full_rect(control: Control) -> void:
 	control.offset_top = 0.0
 	control.offset_right = 0.0
 	control.offset_bottom = 0.0
+
+
+static func set_mobile_ui_enabled(enabled: bool, scale_factor: float = DEFAULT_MOBILE_UI_SCALE) -> void:
+	mobile_ui_enabled = enabled
+	mobile_ui_scale_factor = clampf(scale_factor, 1.0, 3.0) if enabled else 1.0
+
+
+## Scales a UI panel around the appropriate edge/center, preserving its layout anchor.
+static func apply_mobile_scale(control: Control, enabled: bool, pivot_mode: String = "auto", scale_override: float = -1.0) -> void:
+	if not control.has_meta("_mobile_original_scale"):
+		control.set_meta("_mobile_original_scale", control.scale)
+		control.set_meta("_mobile_original_pivot", control.pivot_offset)
+		control.set_meta("_mobile_pivot_mode", pivot_mode)
+		control.resized.connect(_refresh_mobile_transform_on_resize.bind(weakref(control)))
+	else:
+		control.set_meta("_mobile_pivot_mode", pivot_mode)
+	control.set_meta("_mobile_scale_override", scale_override)
+	_refresh_mobile_transform(weakref(control), enabled)
+	_queue_mobile_transform(control)
+
+
+static func _refresh_mobile_transform(control_ref: WeakRef, enabled: bool) -> void:
+	var control := control_ref.get_ref() as Control
+	if control == null or not control.has_meta("_mobile_original_scale"):
+		return
+	if enabled:
+		var pivot_mode := String(control.get_meta("_mobile_pivot_mode", "auto"))
+		control.scale = (control.get_meta("_mobile_original_scale") as Vector2) * _fitted_mobile_scale(control, pivot_mode)
+		control.pivot_offset = _mobile_pivot(control, pivot_mode)
+	else:
+		control.scale = control.get_meta("_mobile_original_scale")
+		control.pivot_offset = control.get_meta("_mobile_original_pivot")
+
+
+static func _refresh_mobile_transform_on_resize(control_ref: WeakRef) -> void:
+	_refresh_mobile_transform(control_ref, mobile_ui_enabled)
+	var control := control_ref.get_ref() as Control
+	if control != null:
+		_queue_mobile_transform(control)
+
+
+static func _queue_mobile_transform(control: Control) -> void:
+	control.call_deferred("set", "scale", control.scale)
+	control.call_deferred("set", "pivot_offset", control.pivot_offset)
+
+
+static func _fitted_mobile_scale(control: Control, pivot_mode: String) -> float:
+	var factor := float(control.get_meta("_mobile_scale_override", -1.0))
+	if factor < 0.0:
+		factor = mobile_ui_scale_factor
+	var centered_pivot := _mobile_pivot(control, pivot_mode)
+	var viewport_size := control.get_viewport_rect().size
+	if not is_zero_approx(control.size.x) and is_equal_approx(centered_pivot.x, control.size.x * 0.5):
+		factor = minf(factor, viewport_size.x / control.size.x)
+	if not is_zero_approx(control.size.y) and is_equal_approx(centered_pivot.y, control.size.y * 0.5):
+		factor = minf(factor, viewport_size.y / control.size.y)
+	return maxf(1.0, factor)
+
+
+static func _mobile_pivot(control: Control, pivot_mode: String) -> Vector2:
+	if pivot_mode == "center":
+		return control.size * 0.5
+	var pivot := control.size * 0.5
+	if is_equal_approx(control.anchor_left, control.anchor_right):
+		if is_equal_approx(control.anchor_left, 0.0):
+			pivot.x = 0.0
+		elif is_equal_approx(control.anchor_right, 1.0):
+			pivot.x = control.size.x
+	if is_equal_approx(control.anchor_top, control.anchor_bottom):
+		if is_equal_approx(control.anchor_top, 0.0):
+			pivot.y = 0.0
+		elif is_equal_approx(control.anchor_bottom, 1.0):
+			pivot.y = control.size.y
+	return pivot
+
+
+static func _sync_modal_wrapper_size(wrapper_ref: WeakRef, card_ref: WeakRef) -> void:
+	var wrapper := wrapper_ref.get_ref() as Control
+	var card := card_ref.get_ref() as Control
+	if wrapper != null and card != null:
+		wrapper.custom_minimum_size = card.get_combined_minimum_size()
 
 
 static func margin(left: int, right: int, top: int, bottom: int) -> MarginContainer:
@@ -496,10 +580,18 @@ static func build_modal(host: Control, width: float, z: int, shade_alpha: float 
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.add_child(center)
 
+	var wrapper := Control.new()
+	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(wrapper)
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(width, 0)
 	card.add_theme_stylebox_override("panel", card_style())
-	center.add_child(card)
+	full_rect(card)
+	wrapper.add_child(card)
+	card.minimum_size_changed.connect(_sync_modal_wrapper_size.bind(weakref(wrapper), weakref(card)))
+	_sync_modal_wrapper_size(weakref(wrapper), weakref(card))
+	host.set_meta("_mobile_scale_target", card)
+	apply_mobile_scale(card, mobile_ui_enabled, "center")
 	var padding := margin(int(pad.x), int(pad.x), int(pad.y), int(pad.y))
 	card.add_child(padding)
 	var content := VBoxContainer.new()

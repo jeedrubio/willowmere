@@ -16,8 +16,14 @@ const BUTTON_WIDTH := 330.0
 
 var _menu: Control
 var _buttons_box: VBoxContainer
+var _menu_column: VBoxContainer
 var _info_label: Label
 var _primary_button: Button
+var _version_label: Label
+var _logo: TextureRect
+var _mobile_labels: Array[Label] = []
+var _mobile_ui_enabled := false
+var _mobile_scale_factor := 1.0
 
 
 func _ready() -> void:
@@ -31,6 +37,8 @@ func _ready() -> void:
 	_build_menu()
 	_build_version_label()
 	_build_buttons()
+	set_mobile_ui_scale(UiKit.mobile_ui_enabled)
+	resized.connect(_on_resized)
 	UiKit.fade_in(self, 0.7)
 
 
@@ -112,58 +120,107 @@ func _build_menu() -> void:
 	add_child(layout)
 	_menu = layout
 
-	var column := VBoxContainer.new()
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_theme_constant_override("separation", 6)
-	layout.add_child(column)
+	_menu_column = VBoxContainer.new()
+	_menu_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_menu_column.add_theme_constant_override("separation", 6)
+	layout.add_child(_menu_column)
 
 	var logo_texture := load(LOGO_PATH) as Texture2D
 	if logo_texture != null:
-		var logo := TextureRect.new()
-		logo.texture = logo_texture
-		logo.custom_minimum_size = Vector2(500, 115)
-		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		logo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		logo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		column.add_child(logo)
+		_logo = TextureRect.new()
+		_logo.texture = logo_texture
+		_logo.custom_minimum_size = Vector2(500, 115)
+		_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_logo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		_logo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_menu_column.add_child(_logo)
 	else:
-		column.add_child(_outlined("Willowmere", 56, Color("#F4C98A")))
-	column.add_child(_outlined("Una pequeña aventura de primavera", 16, Color("#FFE9B8")))
+		var fallback_logo := _outlined("Willowmere", 56, Color("#F4C98A"))
+		_menu_column.add_child(fallback_logo)
+	var subtitle := _outlined("Una pequeña aventura de primavera", 16, Color("#FFE9B8"))
+	_menu_column.add_child(subtitle)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(spacer)
+	_menu_column.add_child(spacer)
 
 	_info_label = _outlined("", 14, Color("#BFEBC9"))
-	column.add_child(_info_label)
+	_menu_column.add_child(_info_label)
 	_buttons_box = VBoxContainer.new()
 	_buttons_box.custom_minimum_size = Vector2(BUTTON_WIDTH, 0)
 	_buttons_box.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_buttons_box.add_theme_constant_override("separation", 8)
-	column.add_child(_buttons_box)
-	column.add_child(_outlined(Controls.title_hint(), 12, Color("#D9C9B0")))
+	_menu_column.add_child(_buttons_box)
+	var controls_hint := _outlined(Controls.title_hint(), 12, Color("#D9C9B0"))
+	_menu_column.add_child(controls_hint)
 
 
 func _build_version_label() -> void:
-	var version := _outlined("v%s" % String(ProjectSettings.get_setting("application/config/version", "")), 13, Color(1, 1, 1, 0.7))
-	version.anchor_left = 1.0
-	version.anchor_right = 1.0
-	version.anchor_top = 1.0
-	version.anchor_bottom = 1.0
-	version.offset_left = -160
-	version.offset_right = -16
-	version.offset_top = -30
-	version.offset_bottom = -8
-	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	add_child(version)
+	_version_label = _outlined("v%s" % String(ProjectSettings.get_setting("application/config/version", "")), 13, Color(1, 1, 1, 0.7))
+	_version_label.anchor_left = 1.0
+	_version_label.anchor_right = 1.0
+	_version_label.anchor_top = 1.0
+	_version_label.anchor_bottom = 1.0
+	_version_label.offset_left = -160
+	_version_label.offset_right = -16
+	_version_label.offset_top = -30
+	_version_label.offset_bottom = -8
+	_version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	add_child(_version_label)
+
+
+func set_mobile_ui_scale(enabled: bool) -> void:
+	_mobile_ui_enabled = enabled
+	for label in _mobile_labels:
+		var base_font_size: int = label.get_meta("_mobile_base_font_size")
+		label.add_theme_font_size_override("font_size", base_font_size)
+	if is_instance_valid(_logo):
+		_logo.custom_minimum_size = Vector2(500, 115)
+	_buttons_box.custom_minimum_size = Vector2(BUTTON_WIDTH, 0)
+	_apply_button_sizes(1.0)
+	_mobile_scale_factor = 1.0
+	if enabled:
+		var available_height := maxf(get_viewport_rect().size.y - 60.0, 1.0)
+		var base_height := _menu_column.get_combined_minimum_size().y
+		if base_height > 0.0:
+			_mobile_scale_factor = minf(UiKit.mobile_ui_scale_factor, available_height / base_height)
+			_mobile_scale_factor = maxf(_mobile_scale_factor, 1.0)
+	for label in _mobile_labels:
+		var base_font_size: int = label.get_meta("_mobile_base_font_size")
+		label.add_theme_font_size_override("font_size", roundi(base_font_size * _mobile_scale_factor))
+	if is_instance_valid(_logo):
+		_logo.custom_minimum_size = Vector2(500, 115) * _mobile_scale_factor
+	_buttons_box.custom_minimum_size = Vector2(BUTTON_WIDTH * _mobile_scale_factor, 0)
+	_apply_button_sizes(_mobile_scale_factor)
+
+
+func _apply_button_sizes(factor: float) -> void:
+	for child in _buttons_box.get_children():
+		if not child is Button:
+			continue
+		var button := child as Button
+		if not button.has_meta("_mobile_base_size"):
+			button.set_meta("_mobile_base_size", button.custom_minimum_size)
+			button.set_meta("_mobile_base_font_size", button.get_theme_font_size("font_size"))
+		var base_size: Vector2 = button.get_meta("_mobile_base_size")
+		var base_font_size: int = button.get_meta("_mobile_base_font_size")
+		button.custom_minimum_size = base_size * factor
+		button.add_theme_font_size_override("font_size", roundi(base_font_size * factor))
+
+
+func _on_resized() -> void:
+	if _mobile_ui_enabled:
+		set_mobile_ui_scale(true)
 
 
 ## Vuelve a dibujar los botones (por ejemplo tras borrar o crear partidas en el menú de guardado).
 func refresh() -> void:
 	_build_buttons()
+	if _mobile_ui_enabled:
+		set_mobile_ui_scale(true)
 
 
 ## Muestra u oculta solo el menú (el fondo se queda, p. ej. mientras hay Ajustes abiertos).
@@ -219,13 +276,16 @@ func _build_buttons() -> void:
 		quit_button.pressed.connect(quit_requested.emit)
 		_buttons_box.add_child(quit_button)
 
+	_apply_button_sizes(_mobile_scale_factor)
 	_primary_button.grab_focus.call_deferred()
 
 
 ## Texto claro con contorno oscuro para leerse sobre el fondo.
 func _outlined(text: String, font_size: int, color: Color) -> Label:
 	var result := UiKit.label(text, font_size, color)
+	result.set_meta("_mobile_base_font_size", font_size)
 	result.add_theme_color_override("font_outline_color", Color("#1A1426"))
 	result.add_theme_constant_override("outline_size", 6)
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_mobile_labels.append(result)
 	return result

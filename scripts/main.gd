@@ -89,6 +89,7 @@ var save_menu: SaveMenu = null
 var title_backdrop: TitleBackdrop = null
 var leaderboard_menu: LeaderboardMenu = null
 var confirm_dialog: ConfirmDialog = null
+var mobile_controls: MobileControls = null
 
 @onready var gemini: GeminiClient = $GeminiClient
 @onready var music: MusicPlayer = $MusicPlayer
@@ -144,8 +145,9 @@ func _ready() -> void:
 	AnimalLife.start(world, player, _outdoor_bounds())
 	_build_houses()
 
-	hud.setup(GeminiClient.MODEL)
-	hud.settings_requested.connect(_show_settings)
+	hud.setup()
+	hud.leaderboard_requested.connect(_open_leaderboard)
+	hud.inventory_requested.connect(_handle_game_action.bind(Controls.INVENTORY))
 	var db := _db()
 	if db != null:
 		db.stats_changed.connect(_update_stats)
@@ -170,6 +172,11 @@ func _ready() -> void:
 	_update_stats()
 	_update_quest_tracker()
 	_build_title_screen()
+	mobile_controls = MobileControls.new()
+	mobile_controls.name = "MobileControls"
+	mobile_controls.action_pressed.connect(_handle_game_action)
+	hud.add_child(mobile_controls)
+	_sync_mobile_controls()
 	_update_interaction_prompt()
 
 
@@ -370,12 +377,46 @@ func _process(_delta: float) -> void:
 		_process_buffered_input()
 	if not _is_input_blocked():
 		_update_interaction_prompt()
+	_sync_mobile_controls()
 	if is_instance_valid(player):
 		player.z_index = int(player.position.y)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(Controls.CANCEL):
+		_handle_game_action(Controls.CANCEL)
+		return
+	if not game_started:
+		if not _modal_open() and event.is_action_pressed(Controls.CONFIRM):
+			_handle_game_action(Controls.CONFIRM)
+		return
+	if _leaderboard_open() and event.is_action_pressed(Controls.LEADERBOARD):
+		_handle_game_action(Controls.LEADERBOARD)
+		return
+	if _pause_open() or _modal_open():
+		input_buffer.clear()
+		return
+	if event.is_action_pressed(Controls.INVENTORY) and not dialogue_open and not transitioning:
+		_handle_game_action(Controls.INVENTORY)
+		return
+	# Input buffering: E y F se guardan un instante aunque aún no se puedan ejecutar
+	# (durante un fundido, un paso antes de llegar, antes de que madure el cultivo...).
+	if not dialogue_open and not _inventory_open():
+		if event.is_action_pressed(Controls.ENTER):
+			_handle_game_action(Controls.ENTER)
+			return
+		if event.is_action_pressed(Controls.INTERACT):
+			_handle_game_action(Controls.INTERACT)
+			return
+	if _is_input_blocked():
+		return
+	if event.is_action_pressed(Controls.LEADERBOARD):
+		_handle_game_action(Controls.LEADERBOARD)
+
+
+## Shared by keyboard/gamepad input and the optional on-screen action buttons.
+func _handle_game_action(action: StringName) -> void:
+	if action == Controls.CANCEL:
 		if _confirm_open():
 			_close_confirm()
 		elif _save_open():
@@ -396,26 +437,24 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_pause()
 		return
 	if not game_started:
-		if not _modal_open() and event.is_action_pressed(Controls.CONFIRM):
+		if action == Controls.CONFIRM and not _modal_open():
 			_continue_game()
 		return
-	if _leaderboard_open() and event.is_action_pressed(Controls.LEADERBOARD):
+	if action == Controls.LEADERBOARD and _leaderboard_open():
 		_close_leaderboard()
 		return
 	if _pause_open() or _modal_open():
 		input_buffer.clear()
 		return
-	if event.is_action_pressed(Controls.INVENTORY) and not dialogue_open and not transitioning:
+	if action == Controls.INVENTORY and not dialogue_open and not transitioning:
 		_toggle_inventory()
 		return
-	# Input buffering: E y F se guardan un instante aunque aún no se puedan ejecutar
-	# (durante un fundido, un paso antes de llegar, antes de que madure el cultivo...).
 	if not dialogue_open and not _inventory_open():
-		if event.is_action_pressed(Controls.ENTER):
+		if action == Controls.ENTER:
 			input_buffer.press(&"door")
 			_process_buffered_input()
 			return
-		if event.is_action_pressed(Controls.INTERACT):
+		if action == Controls.INTERACT:
 			input_buffer.press(&"interact")
 			_process_buffered_input()
 			if input_buffer.has(&"interact"):
@@ -423,7 +462,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 	if _is_input_blocked():
 		return
-	if event.is_action_pressed(Controls.LEADERBOARD):
+	if action == Controls.LEADERBOARD:
 		_open_leaderboard()
 
 
@@ -503,21 +542,21 @@ func _update_interaction_prompt() -> void:
 	var enter_key := Controls.key_label(Controls.ENTER).to_upper()
 	if inside_house:
 		if interior.near_exit(player.position):
-			hud.show_prompt("%s   SALIR · %s" % [enter_key, String(current_house.get("name", "Casa")).to_upper()])
+			hud.show_prompt("%s   SALIR · %s" % [enter_key, String(current_house.get("name", "Casa")).to_upper()], Controls.ENTER, "SALIR")
 		else:
 			hud.hide_prompt()
 		return
 	var nearby_npc := _nearest_npc()
 	if nearby_npc != null:
-		hud.show_prompt("%s   HABLAR CON %s" % [Controls.key_label(Controls.INTERACT).to_upper(), nearby_npc.profile.display_name.to_upper()])
+		hud.show_prompt("%s   HABLAR CON %s" % [Controls.key_label(Controls.INTERACT).to_upper(), nearby_npc.profile.display_name.to_upper()], Controls.INTERACT, "HABLAR")
 		return
 	var door := houses.nearest_door(player.position)
 	if not door.is_empty():
-		hud.show_prompt("%s   ENTRAR · %s" % [enter_key, String(door["name"]).to_upper()])
+		hud.show_prompt("%s   ENTRAR · %s" % [enter_key, String(door["name"]).to_upper()], Controls.ENTER, "ENTRAR")
 		return
 	var ready_crop := _nearest_crop()
 	if ready_crop != null:
-		hud.show_prompt("%s   COSECHAR · %s" % [Controls.key_label(Controls.INTERACT).to_upper(), ItemDb.display_name(ready_crop.item_id()).to_upper()])
+		hud.show_prompt("%s   COSECHAR · %s" % [Controls.key_label(Controls.INTERACT).to_upper(), ItemDb.display_name(ready_crop.item_id()).to_upper()], Controls.INTERACT, "COSECHAR")
 		return
 	var growing_crop: CropManager.CropPlot = null
 	growing_crop = crop_manager.nearest_plot(player.position, CROP_INTERACT_DISTANCE, false)
@@ -938,7 +977,6 @@ func _update_api_status() -> void:
 	var tele := _tele()
 	if tele != null:
 		tele.has_api_key = gemini.has_key()
-	hud.set_api_connected(gemini.has_key())
 	if is_instance_valid(dialogue):
 		dialogue.set_api_ready(gemini.has_key())
 
@@ -951,7 +989,20 @@ func _show_settings() -> void:
 	settings_dialog.setup(gemini.get_key() if gemini.has_key() else "", GeminiClient.MODEL, music)
 	hud.add_child(settings_dialog)
 	settings_dialog.saved.connect(_on_settings_saved)
+	settings_dialog.mobile_controls_changed.connect(_on_mobile_controls_changed)
 	settings_dialog.closed.connect(_close_settings)
+
+
+func _on_mobile_controls_changed(_enabled: bool) -> void:
+	_sync_mobile_controls()
+
+
+func _sync_mobile_controls() -> void:
+	if not is_instance_valid(mobile_controls):
+		return
+	var blocked := _modal_open() or _pause_open() or dialogue_open or _inventory_open() or transitioning
+	hud.set_mobile_controls_enabled(GameFeel.mobile_controls_enabled)
+	mobile_controls.set_context(GameFeel.mobile_controls_enabled, game_started, blocked, hud.prompt_action(), hud.prompt_button_label())
 
 
 func _on_settings_saved(key: String) -> void:
